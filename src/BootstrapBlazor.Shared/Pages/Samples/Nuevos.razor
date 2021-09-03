@@ -1,0 +1,16 @@
+﻿@page "/nuevos"
+
+<h3>Geolocation 地理定位</h3>
+
+<h4>Geolocation 地理定位</h4>
+
+<Block Title="基础用法" Introduction="通过设置 <code>Items</code> 数据集合当用户键入信息是自动显示提示信息">
+    <p>本例中请键入 123 字符串显示查看效果，自动完成组件初始化时给了自动提示数据集并且数据集无变化</p>
+    <div style="width: 200px;">
+        <Geolocation />
+
+		<Badge>@GeolocationInfo</Badge>
+    </div>
+</Block>
+ 
+<AttributeTable Items="@GetAttributes()" />
