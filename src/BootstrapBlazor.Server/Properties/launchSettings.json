@@ -18,6 +18,7 @@
     "BootstrapBlazor.WebConsole": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "nuevos",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
