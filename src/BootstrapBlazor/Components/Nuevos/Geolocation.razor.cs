@@ -67,7 +67,15 @@ namespace BootstrapBlazor.Components
         /// </summary>
         protected virtual async Task GetLocation()
         {
-            await JSRuntime.InvokeVoidAsync(GeolocationElement, "location.getLocation");
+            await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_getLocation");
+        }
+
+        /// <summary>
+        /// 持续定位
+        /// </summary>
+        protected virtual async Task WatchPosition()
+        {
+            await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_getLocation",null,true);
         }
 
     }
