@@ -1,0 +1,12 @@
+﻿@page "/geolocations"
+
+<h3>Geolocation 地理定位</h3>
+
+<h4>Geolocation 地理定位</h4>
+
+<Block Title="基础用法" Introduction="通过设置 <code>Items</code> 数据集合当用户键入信息是自动显示提示信息">
+<Geolocation />
+<Badge>@GeolocationInfo</Badge>
+</Block>
+
+<AttributeTable Items="@GetAttributes()" />

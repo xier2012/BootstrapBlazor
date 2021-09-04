@@ -12,7 +12,7 @@ namespace BootstrapBlazor.Shared.Pages
     /// <summary>
     ///
     /// </summary>
-    public sealed partial class Nuevos
+    public sealed partial class FullscreenVideoBackgrounds
     {
  
         private string? GeolocationInfo { get; set; }
