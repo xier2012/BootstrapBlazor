@@ -390,7 +390,8 @@
     "SweetAlertText": "SweetAlert",
     "SearchDialogText": "SearchDialog",
     "ToastText": "Toast",
-    "TimerText": "Timer"
+    "TimerText": "Timer",
+    "GeolocationText": "Geolocation"
   },
   "BootstrapBlazor.Shared.Pages.GlobalException": {
     "Title": "Global exception",
@@ -912,5 +913,11 @@
   },
   "BootstrapBlazor.Shared.Pages.Components.EventTable": {
     "Title": "Event"
+  },
+  "BootstrapBlazor.Shared.Pages.Geolocations": {
+    "Title": "Geolocation",
+    "BaseUsageText": "Basic usage",
+    "IntroText1": "Obtain location information through browser API.",
+    "IntroText2": "Click the button to get your coordinates."
   }
 }

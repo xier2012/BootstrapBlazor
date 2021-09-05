@@ -1,0 +1,11 @@
+﻿@namespace BootstrapBlazor.Components
+
+
+<div @ref="GeolocationElement">
+    @if (ShowButtons)
+    {
+        <Button OnClick="@GetLocation">@ButtonGetLocationText</Button>
+        <Button OnClick="@WatchPosition">@ButtonWatchPositionText</Button>
+    }
+</div>
+

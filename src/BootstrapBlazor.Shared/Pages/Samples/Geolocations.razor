@@ -1,0 +1,18 @@
+﻿@page "/geolocations"
+    @namespace BootstrapBlazor.Shared.Pages
+
+    <h3>@Title</h3>
+
+    <Block Title="@BaseUsageText" Introduction="@IntroText1">
+
+        <p>@IntroText2</p>
+
+        <Geolocation OnResult="@OnResult" OnUpdateStatus="@OnUpdateStatus" />
+
+ 		<Table TItem="Geolocationitem" Items="Items" AutoGenerateColumns="true"> 
+		</Table>
+
+
+    </Block>
+
+    <AttributeTable Items="@GetAttributes()" />

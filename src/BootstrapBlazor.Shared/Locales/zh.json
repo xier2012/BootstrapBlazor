@@ -390,7 +390,8 @@
     "SweetAlertText": "模态弹窗 SweetAlert",
     "SearchDialogText": "搜索弹窗 SearchDialog",
     "ToastText": "轻量弹窗 Toast",
-    "TimerText": "计时器 Timer"
+    "TimerText": "计时器 Timer",
+    "GeolocationText": "地理定位组件 Geolocation"
   },
   "BootstrapBlazor.Shared.Pages.GlobalException": {
     "Title": "全局异常",
@@ -910,5 +911,11 @@
   },
   "BootstrapBlazor.Shared.Pages.Components.EventTable": {
     "Title": "事件 Event"
+  },
+  "BootstrapBlazor.Shared.Pages.Geolocations": {
+    "Title": "地理定位/移动距离追踪",
+    "BaseUsageText": "基础用法",
+    "IntroText1": "通过浏览器API获取定位信息。",
+    "IntroText2": "单击按钮以获取您的坐标。"
   }
 }
