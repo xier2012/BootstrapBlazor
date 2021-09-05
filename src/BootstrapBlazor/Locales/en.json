@@ -292,6 +292,7 @@
   },
   "BootstrapBlazor.Components.Geolocation": {
     "GetLocationButtonText": "Get Location",
-    "WatchPositionButtonText": "Watch Position"
+    "WatchPositionButtonText": "Watch Position",
+    "ClearWatchPositionButtonText": "Stop Watch Position"
   }
 }

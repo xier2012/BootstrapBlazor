@@ -15,6 +15,9 @@ namespace BootstrapBlazor.Shared.Pages
 {
     /// <summary>
     /// Geolocation 地理定位/移动距离追踪
+    /// <para></para>
+    /// 扩展阅读:Chrome中模拟定位信息，清除定位信息<para></para>
+    /// https://blog.csdn.net/u010844189/article/details/81163438
     /// </summary>
     public sealed partial class Geolocations
     {
@@ -85,10 +88,18 @@ namespace BootstrapBlazor.Shared.Pages
             new AttributeItem()
             {
                 Name = "WatchPositionButtonText",
-                Description = "获取移动距离追踪按钮文字",
+                Description = "移动距离追踪按钮文字",
                 Type = "string",
                 ValueList = " - ",
                 DefaultValue = "移动距离追踪"
+            },
+            new AttributeItem()
+            {
+                Name = "ClearWatchPositionButtonText",
+                Description = "停止追踪按钮文字",
+                Type = "string",
+                ValueList = " - ",
+                DefaultValue = "停止追踪"
             },
             new AttributeItem() {
                 Name = "ShowButtons",

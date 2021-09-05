@@ -292,6 +292,7 @@
   },
   "BootstrapBlazor.Components.Geolocation": {
     "GetLocationButtonText": "获取位置",
-    "WatchPositionButtonText": "移动距离追踪"
+    "WatchPositionButtonText": "移动距离追踪",
+    "ClearWatchPositionButtonText": "停止追踪"
   }
 }

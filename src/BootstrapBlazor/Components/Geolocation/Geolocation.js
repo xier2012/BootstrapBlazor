@@ -1,8 +1,8 @@
 ﻿(function ($) {
     $.extend({
         bb_getLocation: function (el, obj, getPosition=true) {
-            var $el = $(el);
-            console.log('start getLocation');
+            //var $el = $(el);
+            console.log('start ' + (getPosition?'getLocation':'watchPosition'));
             var currentDistance = 0.0;
             var totalDistance = 0.0;
             var lastLat;
@@ -47,9 +47,10 @@
                 if (navigator.geolocation) {
                     status = "HTML5 Geolocation is supported in your browser.";
                     updateStatus(status);
-                    navigator.geolocation.watchPosition(updateLocation,
+                    var id = navigator.geolocation.watchPosition(updateLocation,
                         handleLocationError,
                         { maximumAge: 20000 });
+                    obj.invokeMethodAsync('UpdateWatchID', id);
                 }
             }
 
@@ -118,6 +119,13 @@
                         break;
                 }
             }
-         }
+
+        },
+        bb_clearWatchLocation: function (el,id) {
+            //扩展阅读:移除的监听器
+            //id = navigator.geolocation.watchPosition(success, error, options);
+            console.log('clearWatch ' + id);
+            navigator.geolocation.clearWatch(id);
+        }
      });
 })(jQuery);

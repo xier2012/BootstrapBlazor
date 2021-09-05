@@ -40,7 +40,13 @@ namespace BootstrapBlazor.Components
         /// </summary>
         [Parameter]
         [NotNull]
-        public string? GetLocationButtonText { get; set; } 
+        public string? GetLocationButtonText { get; set; }
+
+        /// <summary>
+        /// 获得/设置 获取持续定位监听器ID
+        /// </summary>
+        [Parameter]
+        public long? WatchID { get; set; }
 
         /// <summary>
         /// 获得/设置 获取移动距离追踪按钮文字 默认为 移动距离追踪
@@ -48,6 +54,13 @@ namespace BootstrapBlazor.Components
         [Parameter]
         [NotNull]
         public string? WatchPositionButtonText { get; set; }
+
+        /// <summary>
+        /// 获得/设置 获取停止追踪按钮文字 默认为 停止追踪
+        /// </summary>
+        [Parameter]
+        [NotNull]
+        public string? ClearWatchPositionButtonText { get; set; }
 
         /// <summary>
         /// 获得/设置 是否显示默认按钮界面
@@ -88,6 +101,7 @@ namespace BootstrapBlazor.Components
 
             GetLocationButtonText ??= Localizer[nameof(GetLocationButtonText)];
             WatchPositionButtonText ??= Localizer[nameof(WatchPositionButtonText)];
+            ClearWatchPositionButtonText ??= Localizer[nameof(ClearWatchPositionButtonText)];
         }
 
         /// <summary>
@@ -109,7 +123,6 @@ namespace BootstrapBlazor.Components
         public virtual async Task GetLocation()
         {
             await Interop.InvokeVoidAsync(this, GeolocationElement, "bb_getLocation");
-            //await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_getLocation");
         }
 
         /// <summary>
@@ -117,8 +130,16 @@ namespace BootstrapBlazor.Components
         /// </summary>
         public virtual async Task WatchPosition()
         {
-            await Interop.InvokeVoidAsync(this, GeolocationElement, "bb_getLocation", true);
-            //await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_getLocation","null",true);
+            await Interop.InvokeVoidAsync(this, GeolocationElement, "bb_getLocation", false);
+        }
+
+        /// <summary>
+        /// 持续定位
+        /// </summary>
+        public virtual async Task ClearWatch()
+        {
+            await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_clearWatchLocation", WatchID);
+            WatchID = null;
         }
 
         /// <summary>
@@ -141,6 +162,18 @@ namespace BootstrapBlazor.Components
         public async Task UpdateStatus(string status)
         {
             if (OnUpdateStatus != null) await OnUpdateStatus.Invoke(status);
+        }
+
+        /// <summary>
+        /// 监听器ID回调方法
+        /// </summary>
+        /// <param name="watchID"></param>
+        /// <returns></returns>
+        [JSInvokable]
+        public Task UpdateWatchID(long watchID)
+        {
+            this.WatchID = watchID;
+            return Task.CompletedTask;
         }
 
     }
