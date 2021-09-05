@@ -2,10 +2,10 @@
 
 
 <div @ref="GeolocationElement">
-    @if (!IsLite)
+    @if (ShowButtons)
     {
-        <Button OnClick="@GetLocation">@BtnGetLocation</Button>
-        <Button OnClick="@WatchPosition">@BtnWatchPosition</Button>
+        <Button OnClick="@GetLocation">@ButtonGetLocationText</Button>
+        <Button OnClick="@WatchPosition">@ButtonWatchPositionText</Button>
     }
 </div>
 

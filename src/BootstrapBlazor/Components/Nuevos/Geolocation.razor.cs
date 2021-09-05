@@ -36,24 +36,24 @@ namespace BootstrapBlazor.Components
         public string? GeolocationInfo { get; set; }
 
         /// <summary>
-        /// 获得/设置 获取位置按钮文本 默认提示"获取位置/GetLocation"
+        /// 获得/设置 获取位置按钮文字 默认为 获取位置/GetLocation
         /// </summary>
         [Parameter]
         [NotNull]
-        public string? BtnGetLocation { get; set; } = "获取位置/GetLocation";
+        public string? ButtonGetLocationText { get; set; } = "获取位置/GetLocation";
 
         /// <summary>
-        /// 获得/设置 获取移动距离追踪按钮文本 默认提示"移动距离追踪/WatchPosition"
+        /// 获得/设置 获取移动距离追踪按钮文字 默认为 移动距离追踪/WatchPosition
         /// </summary>
         [Parameter]
         [NotNull]
-        public string? BtnWatchPosition { get; set; } = "移动距离追踪/WatchPosition";
+        public string? ButtonWatchPositionText { get; set; } = "移动距离追踪/WatchPosition";
 
         /// <summary>
-        /// 获得/设置 是否无界面 默认有两颗按钮
+        /// 获得/设置 是否显示默认按钮界面
         /// </summary>
-        [Parameter] 
-        public bool IsLite { get; set; } 
+        [Parameter]
+        public bool ShowButtons { get; set; } = true;
 
         /// <summary>
         /// 
@@ -86,8 +86,8 @@ namespace BootstrapBlazor.Components
         {
             base.OnInitialized();
 
-            BtnGetLocation ??= Localizer[nameof(BtnGetLocation)];
-            BtnWatchPosition ??= Localizer[nameof(BtnWatchPosition)];
+            ButtonGetLocationText ??= Localizer[nameof(ButtonGetLocationText)];
+            ButtonWatchPositionText ??= Localizer[nameof(ButtonWatchPositionText)];
         }
 
         /// <summary>
