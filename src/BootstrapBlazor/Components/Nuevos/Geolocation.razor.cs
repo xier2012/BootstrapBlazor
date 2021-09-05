@@ -26,6 +26,8 @@ namespace BootstrapBlazor.Components
         [NotNull]
         protected IJSRuntime? JSRuntime { get; set; }
 
+        private JSInterop<Geolocation>? Interop { get; set; }
+
         /// <summary>
         /// 获得/设置 定位
         /// </summary>
@@ -34,11 +36,24 @@ namespace BootstrapBlazor.Components
         public string? GeolocationInfo { get; set; }
 
         /// <summary>
-        /// 获得/设置 无匹配数据时显示提示信息 默认提示"无匹配数据"
+        /// 获得/设置 获取位置按钮文本 默认提示"获取位置/GetLocation"
         /// </summary>
         [Parameter]
         [NotNull]
-        public string? NoDataTip { get; set; }
+        public string? BtnGetLocation { get; set; } = "获取位置/GetLocation";
+
+        /// <summary>
+        /// 获得/设置 获取移动距离追踪按钮文本 默认提示"移动距离追踪/WatchPosition"
+        /// </summary>
+        [Parameter]
+        [NotNull]
+        public string? BtnWatchPosition { get; set; } = "移动距离追踪/WatchPosition";
+
+        /// <summary>
+        /// 获得/设置 是否无界面 默认有两颗按钮
+        /// </summary>
+        [Parameter] 
+        public bool IsLite { get; set; } 
 
         /// <summary>
         /// 
@@ -53,29 +68,79 @@ namespace BootstrapBlazor.Components
         protected ElementReference GeolocationElement { get; set; }
 
         /// <summary>
+        /// 获得/设置 定位结果回调方法
+        /// </summary>
+        [Parameter]
+        public Func<Geolocationitem, Task>? OnResult { get; set; }
+
+        /// <summary>
+        /// 获得/设置 状态更新回调方法
+        /// </summary>
+        [Parameter]
+        public Func<string, Task>? OnUpdateStatus { get; set; }
+
+        /// <summary>
         /// OnInitialized 方法
         /// </summary>
         protected override void OnInitialized()
         {
             base.OnInitialized();
 
-            NoDataTip ??= Localizer[nameof(NoDataTip)];
+            BtnGetLocation ??= Localizer[nameof(BtnGetLocation)];
+            BtnWatchPosition ??= Localizer[nameof(BtnWatchPosition)];
+        }
+
+        /// <summary>
+        /// OnAfterRender 方法
+        /// </summary>
+        /// <param name="firstRender"></param>
+        /// <returns></returns>
+        protected override void OnAfterRender(bool firstRender)
+        {
+            if (firstRender && JSRuntime != null)
+            {
+                Interop = new JSInterop<Geolocation>(JSRuntime);
+            }
         }
 
         /// <summary>
         /// 获取定位
         /// </summary>
-        protected virtual async Task GetLocation()
+        public virtual async Task GetLocation()
         {
-            await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_getLocation");
+            await Interop.InvokeVoidAsync(this, GeolocationElement, "bb_getLocation");
+            //await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_getLocation");
         }
 
         /// <summary>
         /// 持续定位
         /// </summary>
-        protected virtual async Task WatchPosition()
+        public virtual async Task WatchPosition()
         {
-            await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_getLocation",null,true);
+            await Interop.InvokeVoidAsync(this, GeolocationElement, "bb_getLocation", true);
+            //await JSRuntime.InvokeVoidAsync(GeolocationElement, "bb_getLocation","null",true);
+        }
+
+        /// <summary>
+        /// 定位完成回调方法
+        /// </summary>
+        /// <param name="geolocations"></param>
+        /// <returns></returns>
+        [JSInvokable]
+        public async Task GetResult(Geolocationitem geolocations)
+        {
+            if (OnResult != null) await OnResult.Invoke(geolocations);
+        }
+
+        /// <summary>
+        /// 状态更新回调方法
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        [JSInvokable]
+        public async Task UpdateStatus(string status)
+        {
+            if (OnUpdateStatus != null) await OnUpdateStatus.Invoke(status);
         }
 
     }

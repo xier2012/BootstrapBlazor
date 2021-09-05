@@ -1,0 +1,42 @@
+﻿@page "/geolocations"
+    @namespace BootstrapBlazor.Shared.Pages
+
+    <h3>Geolocation 地理定位/移动距离追踪</h3>
+
+    <Block Title="基础用法" Introduction="通过设置 <code>Items</code> 数据集合当用户键入信息是自动显示提示信息">
+
+        <p>单击按钮以获取您的坐标。Click the button to get your coordinates.</p>
+
+        <Geolocation OnResult="@OnResult" OnUpdateStatus="@OnUpdateStatus" />
+        状态: <p>@status</p>
+
+            <h2>当前位置 Current Position:</h2>
+
+        <table border="1">
+            <tr>
+                <th width="200" scope="col"><h5>Latitude</h5></th>
+                <td width="300">@geolocations?.Latitude</td>
+            </tr>
+            <tr>
+                <td>Longitude</td>
+                <td>@geolocations?.Longitude</td>
+            </tr>
+            <tr>
+                <td>Accuracy</td>
+                <td>@geolocations?.Accuracy</td>
+            </tr>
+            <tr>
+                <td>Last Timestamp</td>
+                <td>@geolocations?.LastUpdateTime</td>
+            </tr>
+        </table>
+
+        <h4>当前移动距离 Current distance traveled: @geolocations?.CurrentDistance km</h4>
+        <h4>总移动距离 Total distance traveled: @geolocations?.TotalDistance km</h4>
+
+
+
+
+    </Block>
+
+    <AttributeTable Items="@GetAttributes()" />

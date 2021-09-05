@@ -1,11 +1,13 @@
 ﻿(function ($) {
     $.extend({
-        bb_getLocation: function (el, result, getPosition=true) {
+        bb_getLocation: function (el, obj, getPosition=true) {
             var $el = $(el);
             console.log('start getLocation');
+            var currentDistance = 0.0;
             var totalDistance = 0.0;
             var lastLat;
             var lastLong;
+            var status;
 
             if (getPosition) getCurrentPosition(); else watchPosition();
 
@@ -37,12 +39,14 @@
 
 
             function updateStatus(message) {
-                document.getElementById("status").innerHTML = message;
+                status = message;
+                obj.invokeMethodAsync('UpdateStatus', message);
             }
 
             function watchPosition() {
                 if (navigator.geolocation) {
-                    updateStatus("HTML5 Geolocation is supported in your browser.");
+                    status = "HTML5 Geolocation is supported in your browser.";
+                    updateStatus(status);
                     navigator.geolocation.watchPosition(updateLocation,
                         handleLocationError,
                         { maximumAge: 20000 });
@@ -63,11 +67,6 @@
                 var accuracy = position.coords.accuracy;
                 var timestamp = position.timestamp;
 
-                document.getElementById("latitude").innerHTML = latitude;
-                document.getElementById("longitude").innerHTML = longitude;
-                document.getElementById("accuracy").innerHTML = accuracy;
-                document.getElementById("timestamp").innerHTML = timestamp;
-
                 // sanity test... don't calculate distance if accuracy
                 // value too large
                 if (accuracy >= 500) {
@@ -76,16 +75,10 @@
                 }
 
                 // calculate distance
-
+                currentDistance = 0.0;
                 if ((lastLat != null) && (lastLong != null)) {
-                    var currentDistance = distance(latitude, longitude, lastLat, lastLong);
-                    document.getElementById("currDist").innerHTML =
-                        "Current distance traveled: " + currentDistance.toFixed(4) + " km";
-
+                    currentDistance = distance(latitude, longitude, lastLat, lastLong);
                     totalDistance += currentDistance;
-
-                    document.getElementById("totalDist").innerHTML =
-                        "Total distance traveled: " + currentDistance.toFixed(4) + " km";
                 }
 
 
@@ -93,6 +86,20 @@
                 lastLong = longitude;
 
                 updateStatus("Location successfully updated.");
+
+                console.log("updateLocation end");
+                var geolocationitem = {
+                    "Status": status,
+                    "Latitude" : latitude,
+                    "Longitude" : longitude,
+                    "Accuracy" : accuracy,
+                    "Timestamp" : timestamp,
+                    "CurrentDistance": currentDistance,
+                    "TotalDistance": totalDistance,
+                    "LastLat" : lastLat,
+                    "LastLong" : lastLong,
+                };
+                obj.invokeMethodAsync('GetResult', geolocationitem);
             }
 
             function handleLocationError(error) {

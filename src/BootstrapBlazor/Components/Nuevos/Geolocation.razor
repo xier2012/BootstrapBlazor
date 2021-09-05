@@ -1,40 +1,11 @@
 ﻿@namespace BootstrapBlazor.Components
- 
-<p>Click the button to get your coordinates.</p>
+
 
 <div @ref="GeolocationElement">
-
-<Button OnClick="@GetLocation">GetLocation</Button>
-<Button OnClick="@WatchPosition">WatchPosition</Button>
-
-<p id="demo"></p>
-
-    <h1>HTML5 Geolocation Distance Tracker</h1>
-
-    <p id="status">HTML5 Geolocation is <strong>not</strong> supported in your browser.</p>
-
-    <h2>Current Position:</h2>
-    <table border="1">
-        <tr>
-            <th width="200" scope="col"><h5>Latitude</h5></th>
-            <td width="300" id="latitude">?</td>
-        </tr>
-        <tr>
-            <td> Longitude</td>
-            <td id="longitude">?</td>
-        </tr>
-        <tr>
-            <td>Accuracy</td>
-            <td id="accuracy">?</td>
-        </tr>
-        <tr>
-            <td>Last Timestamp</td>
-            <td id="timestamp">?</td>
-        </tr>
-    </table>
-
-    <h4 id="currDist">Current distance traveled: 0.0 km</h4>
-    <h4 id="totalDist">Total distance traveled: 0.0 km</h4>
-
-
+    @if (!IsLite)
+    {
+        <Button OnClick="@GetLocation">@BtnGetLocation</Button>
+        <Button OnClick="@WatchPosition">@BtnWatchPosition</Button>
+    }
 </div>
+
