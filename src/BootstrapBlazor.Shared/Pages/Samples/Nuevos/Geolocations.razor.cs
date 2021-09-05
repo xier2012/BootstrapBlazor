@@ -18,10 +18,11 @@ namespace BootstrapBlazor.Shared.Pages
  
         private string? status { get; set; }
         private Geolocationitem? geolocations { get; set; }
-
+        private List<Geolocationitem> Items  { get; set; } = new List<Geolocationitem>() { new Geolocationitem()} ;
         private Task OnResult(Geolocationitem geolocations)
         {
             this.geolocations = geolocations;
+            Items[0] = geolocations;
             StateHasChanged();
             return Task.CompletedTask;
         }
