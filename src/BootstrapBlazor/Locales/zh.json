@@ -277,5 +277,21 @@
     "BrowserButtonText": "浏览",
     "FileExtensions": "文件扩展名必须为以下几种格式: {0}",
     "FileSizeValidation": "文件太大，文件限制大小为 {0}"
+  },
+  "BootstrapBlazor.Components.Geolocationitem": {
+    "Status": "状态",
+    "Latitude": "纬度",
+    "Longitude": "经度",
+    "Accuracy": "准确度(米)",
+    "Timestamp": "时间戳",
+    "LastUpdateTime": "时间",
+    "CurrentDistance": "移动距离",
+    "TotalDistance": "总移动距离",
+    "LastLat": "最后一次获取到的纬度",
+    "LastLong": "最后一次获取到的经度"
+  },
+  "BootstrapBlazor.Components.Geolocation": {
+    "GetLocationButtonText": "获取位置",
+    "WatchPositionButtonText": "移动距离追踪"
   }
 }

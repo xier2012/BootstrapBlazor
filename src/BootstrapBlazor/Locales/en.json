@@ -277,5 +277,21 @@
     "BrowserButtonText": "Browser",
     "FileExtensions": "File must have one of the following extensions: {0}",
     "FileSizeValidation": "File size must less {0}"
+  },
+  "BootstrapBlazor.Components.Geolocationitem": {
+    "Status": "Status",
+    "Latitude": "Latitude",
+    "Longitude": "Longitude",
+    "Accuracy": "Accuracy(m)",
+    "Timestamp": "Timestamp",
+    "LastUpdateTime": "Last update time",
+    "CurrentDistance": "Current distance",
+    "TotalDistance": "Total distance",
+    "LastLat": "Last latitude",
+    "LastLong": "Last longitude"
+  },
+  "BootstrapBlazor.Components.Geolocation": {
+    "GetLocationButtonText": "Get Location",
+    "WatchPositionButtonText": "Watch Position"
   }
 }

@@ -76,7 +76,7 @@ namespace BootstrapBlazor.Shared.Pages
         {
             new AttributeItem()
             {
-                Name = "ButtonGetLocationText",
+                Name = "GetLocationButtonText",
                 Description = "获取位置按钮文字",
                 Type = "string",
                 ValueList = " - ",
@@ -84,7 +84,7 @@ namespace BootstrapBlazor.Shared.Pages
             },
             new AttributeItem()
             {
-                Name = "ButtonWatchPositionText",
+                Name = "WatchPositionButtonText",
                 Description = "获取移动距离追踪按钮文字",
                 Type = "string",
                 ValueList = " - ",
