@@ -99,14 +99,14 @@ namespace BootstrapBlazor.Localization.Json
         /// </summary>
         /// <typeparam name="TType"></typeparam>
         /// <returns></returns>
-        public static IStringLocalizer? CreateLocalizer<TType>() => CreateLocalizer(typeof(TType));
+        public static IStringLocalizer CreateLocalizer<TType>() => CreateLocalizer(typeof(TType));
 
         /// <summary>
         /// 通过指定类型创建 IStringLocalizer 实例
         /// </summary>
         /// <param name="resourceSource"></param>
         /// <returns></returns>
-        public static IStringLocalizer? CreateLocalizer(Type resourceSource) => ServiceProviderHelper.ServiceProvider?.GetRequiredService<IStringLocalizerFactory>().Create(resourceSource);
+        public static IStringLocalizer CreateLocalizer(Type resourceSource) => ServiceProviderHelper.ServiceProvider.GetRequiredService<IStringLocalizerFactory>().Create(resourceSource);
 
         /// <summary>
         /// 获取指定 Type 的资源文件

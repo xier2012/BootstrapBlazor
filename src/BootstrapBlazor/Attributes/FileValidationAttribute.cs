@@ -48,12 +48,12 @@ namespace BootstrapBlazor.Components
                     Localizer = JsonStringLocalizerFactory.CreateLocalizer<Upload<object>>();
                     if (Extensions.Any() && !Extensions.Contains(Path.GetExtension(file.Name), StringComparer.OrdinalIgnoreCase))
                     {
-                        var errorMessage = Localizer?["FileExtensions", string.Join(", ", Extensions)];
+                        var errorMessage = Localizer["FileExtensions", string.Join(", ", Extensions)];
                         ret = new ValidationResult(errorMessage?.Value, new[] { validationContext.MemberName! });
                     }
                     if (ret == null && FileSize > 0 && file.Size > FileSize)
                     {
-                        var errorMessage = Localizer?["FileSizeValidation", FileSize.ToFileSizeString()];
+                        var errorMessage = Localizer["FileSizeValidation", FileSize.ToFileSizeString()];
                         ret = new ValidationResult(errorMessage?.Value, new[] { validationContext.MemberName! });
                     }
                 }

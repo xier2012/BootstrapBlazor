@@ -73,8 +73,8 @@ namespace BootstrapBlazor.Components
                 {
                     // search in Localization
                     var localizer = JsonStringLocalizerFactory.CreateLocalizer(t);
-                    var stringLocalizer = localizer?[fieldName];
-                    if (stringLocalizer != null && !stringLocalizer.ResourceNotFound)
+                    var stringLocalizer = localizer[fieldName];
+                    if (!stringLocalizer.ResourceNotFound)
                     {
                         dn = stringLocalizer.Value;
                     }
@@ -87,8 +87,8 @@ namespace BootstrapBlazor.Components
                         // search in Localization again
                         if (!string.IsNullOrEmpty(dn))
                         {
-                            var resxType = ServiceProviderHelper.ServiceProvider?.GetRequiredService<IOptions<JsonLocalizationOptions>>();
-                            if (resxType?.Value.ResourceManagerStringLocalizerType != null)
+                            var resxType = ServiceProviderHelper.ServiceProvider.GetRequiredService<IOptions<JsonLocalizationOptions>>();
+                            if (resxType.Value.ResourceManagerStringLocalizerType != null)
                             {
                                 localizer = JsonStringLocalizerFactory.CreateLocalizer(resxType.Value.ResourceManagerStringLocalizerType);
                                 stringLocalizer = localizer?[dn];
@@ -119,7 +119,10 @@ namespace BootstrapBlazor.Components
         public static IEnumerable<SelectedItem> ToSelectList(this Type type, SelectedItem? addtionalItem = null)
         {
             var ret = new List<SelectedItem>();
-            if (addtionalItem != null) ret.Add(addtionalItem);
+            if (addtionalItem != null)
+            {
+                ret.Add(addtionalItem);
+            }
 
             if (type.IsEnum())
             {
@@ -127,7 +130,11 @@ namespace BootstrapBlazor.Components
                 foreach (var field in Enum.GetNames(t))
                 {
                     var desc = t.ToEnumDisplayName(field);
-                    if (string.IsNullOrEmpty(desc)) desc = field;
+                    if (string.IsNullOrEmpty(desc))
+                    {
+                        desc = field;
+                    }
+
                     ret.Add(new SelectedItem(field, desc));
                 }
             }
