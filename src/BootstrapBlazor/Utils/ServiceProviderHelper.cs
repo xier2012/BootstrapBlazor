@@ -13,11 +13,15 @@ namespace BootstrapBlazor.Components
     {
         private static IServiceProvider? _provider;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="provider"></param>
         internal static void RegisterProvider(IServiceProvider? provider) => _provider = provider;
 
         /// <summary>
         /// 获取系统 IServiceProvider 接口
         /// </summary>
-        public static IServiceProvider? ServiceProvider => _provider;
+        public static IServiceProvider ServiceProvider => _provider ?? throw new InvalidOperationException($"Please palce <{nameof(BootstrapService)} /> element on current page or Layout");
     }
 }
