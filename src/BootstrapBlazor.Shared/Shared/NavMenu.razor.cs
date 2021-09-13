@@ -493,6 +493,16 @@ namespace BootstrapBlazor.Shared.Shared
                     Text = Localizer["Transition"],
                     Url = "transitions"
                 },
+                new()
+                {
+                    Text = Localizer["FullScreen"],
+                    Url = "fullscreens"
+                },
+                new()
+                {
+                    Text = Localizer["Geolocation"],
+                    Url = "geolocations"
+                },
             };
             AddBadge(item);
         }

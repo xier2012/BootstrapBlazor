@@ -1211,7 +1211,8 @@
     "ChartPie": "Pie",
     "ChartDoughnut": "Doughnut",
     "ChartBubble": "Bubble",
-    "Transition": "Transition"
+    "Transition": "Transition",
+    "Geolocation": "Geolocation"
   },
   "BootstrapBlazor.Shared.Pages.Empties": {
     "Title": "Empty",
