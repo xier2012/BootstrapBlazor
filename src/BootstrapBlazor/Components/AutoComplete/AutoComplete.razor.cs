@@ -141,6 +141,16 @@ namespace BootstrapBlazor.Components
         }
 
         /// <summary>
+        /// 获得/设置 是否跳过 Enter 按键处理 默认 false
+        /// </summary>
+        protected bool SkipEnter { get; set; }
+
+        /// <summary>
+        /// 获得/设置 是否跳过 Esc 按键处理 默认 false
+        /// </summary>
+        protected bool SkipEsc { get; set; }
+
+        /// <summary>
         /// OnKeyUp 方法
         /// </summary>
         /// <param name="args"></param>
@@ -196,6 +206,10 @@ namespace BootstrapBlazor.Components
                 else if (args.Key == "Escape")
                 {
                     OnBlur();
+                    if (!SkipEsc && OnEscAsync != null)
+                    {
+                        await OnEscAsync(Value);
+                    }
                 }
                 else if (args.Key == "Enter")
                 {
@@ -203,6 +217,10 @@ namespace BootstrapBlazor.Components
                     {
                         CurrentValueAsString = _selectedItem;
                         OnBlur();
+                        if (!SkipEnter && OnEnterAsync != null)
+                        {
+                            await OnEnterAsync(Value);
+                        }
                     }
                 }
             }

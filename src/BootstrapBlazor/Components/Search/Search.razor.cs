@@ -16,12 +16,8 @@ namespace BootstrapBlazor.Components
     /// </summary>
     public partial class Search
     {
-        private ElementReference SearchElement { get; set; }
-
         [NotNull]
         private string? ButtonIcon { get; set; }
-
-        private bool IsClear { get; set; }
 
         /// <summary>
         /// 获得/设置 是否显示清除按钮 默认为 false 不显示
@@ -64,12 +60,6 @@ namespace BootstrapBlazor.Components
         /// </summary>
         [Parameter]
         public string SearchButtonLoadingIcon { get; set; } = "fa fa-fw fa-spinner fa-spin";
-
-        /// <summary>
-        /// 获得/设置 是否自动获得焦点
-        /// </summary>
-        [Parameter]
-        public bool IsAutoFocus { get; set; }
 
         /// <summary>
         /// 获得/设置 点击搜索后是否自动清空搜索框
@@ -115,21 +105,9 @@ namespace BootstrapBlazor.Components
 
             SearchButtonText ??= Localizer[nameof(SearchButtonText)];
             ButtonIcon = SearchButtonIcon;
-        }
 
-        /// <summary>
-        /// OnAfterRenderAsync 方法
-        /// </summary>
-        /// <param name="firstRender"></param>
-        /// <returns></returns>
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await base.OnAfterRenderAsync(firstRender);
-
-            if (firstRender && IsAutoFocus)
-            {
-                await FocusAsync();
-            }
+            SkipEnter = true;
+            SkipEsc = true;
         }
 
         /// <summary>
@@ -152,12 +130,6 @@ namespace BootstrapBlazor.Components
 
             await FocusAsync();
         }
-
-        /// <summary>
-        /// 自动获得焦点方法
-        /// </summary>
-        /// <returns></returns>
-        public ValueTask FocusAsync() => SearchElement.FocusAsync();
 
         /// <summary>
         /// 点击搜索按钮时触发此方法
@@ -185,11 +157,23 @@ namespace BootstrapBlazor.Components
             {
                 if (args.Key == "Escape")
                 {
+                    if (OnEscAsync != null)
+                    {
+                        await OnEscAsync(Value);
+                    }
+
+                    // 清空
                     await OnClearClick();
                 }
 
                 if (IsOnInputTrigger || args.Key == "Enter")
                 {
+                    if (OnEnterAsync != null)
+                    {
+                        await OnEnterAsync(Value);
+                    }
+
+                    // 搜索
                     await OnSearchClick();
                 }
             }

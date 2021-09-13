@@ -39,6 +39,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped<PopoverService>();
             services.TryAddScoped<ToastService>();
             services.TryAddScoped<SwalService>();
+            services.TryAddScoped<FullScreenService>();
+            services.TryAddScoped<PrintService>();
             services.TryAddScoped<TabItemTextOptions>();
             services.TryAddScoped<TitleService>();
             services.TryAddScoped<DownloadService>();
