@@ -204,7 +204,7 @@ namespace BootstrapBlazor.Components
             if (source.AllowTextWrap) dest.AllowTextWrap = source.AllowTextWrap;
             if (source.Editable) dest.Editable = source.Editable;
             if (source.Filterable) dest.Filterable = source.Filterable;
-            if (source.Readonly) dest.Readonly = source.Readonly;
+            if (source.Readonly || source.HideInAddNewItem) dest.Readonly = source.Readonly;
             if (source.Searchable) dest.Searchable = source.Searchable;
             if (source.ShowTips) dest.ShowTips = source.ShowTips;
             if (source.Sortable) dest.Sortable = source.Sortable;

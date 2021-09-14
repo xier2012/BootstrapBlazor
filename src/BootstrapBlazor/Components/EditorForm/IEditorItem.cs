@@ -29,6 +29,11 @@ namespace BootstrapBlazor.Components
         bool Readonly { get; set; }
 
         /// <summary>
+        /// 获得/设置 新添加item是否隐藏本字段 默认为 false 不隐藏
+        /// </summary>
+        public bool HideInAddNewItem { get; set; }
+
+        /// <summary>
         /// 获得/设置 是否不进行验证 默认为 false
         /// </summary>
         public bool SkipValidate { get; set; }
