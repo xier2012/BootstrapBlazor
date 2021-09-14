@@ -46,7 +46,7 @@ namespace BootstrapBlazor.Shared.Pages.Components
         /// </summary>
         [Display(Name = "地址")]
         [Required(ErrorMessage = "{0}不能为空")]
-        [AutoGenerateColumn(Order = 20, Filterable = true, Searchable = true)]
+        [AutoGenerateColumn(Order = 20, Filterable = true, Searchable = true,Readonly =true)]
         public string? Address { get; set; }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace BootstrapBlazor.Shared.Pages.Components
         /// </summary>
         [Display(Name = "数量")]
         [Required]
-        [AutoGenerateColumn(Order = 40, Sortable = true)]
+        [AutoGenerateColumn(Order = 40, Sortable = true, Editable =false)]
         public int Count { get; set; }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace BootstrapBlazor.Shared.Pages.Components
         /// </summary>
         [Required(ErrorMessage = "请选择学历")]
         [Display(Name = "学历")]
-        [AutoGenerateColumn(Order = 60)]
+        [AutoGenerateColumn(Order = 60, IsReadonlyWhenNew = true)]
         public EnumEducation? Education { get; set; }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace BootstrapBlazor.Shared.Pages.Components
         /// </summary>
         [Required(ErrorMessage = "请选择一种{0}")]
         [Display(Name = "爱好")]
-        [AutoGenerateColumn(Order = 70)]
+        [AutoGenerateColumn(Order = 70, IsReadonlyWhenNew = true)]
         public IEnumerable<string> Hobby { get; set; } = new List<string>();
 
         private static readonly Random random = new();

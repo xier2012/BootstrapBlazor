@@ -58,6 +58,12 @@ namespace BootstrapBlazor.Components
         [Parameter]
         public Func<Task>? OnCloseAsync { get; set; }
 
+        /// <summary>
+        /// 获得/设置 数据变化类型
+        /// </summary>
+        [Parameter]
+        public ItemChangedType ChangedType { get; set; } = ItemChangedType.Update;
+
         [Inject]
         [NotNull]
         private IStringLocalizer<EditDialog<TModel>>? Localizer { get; set; }

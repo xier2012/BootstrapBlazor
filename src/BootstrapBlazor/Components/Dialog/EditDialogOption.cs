@@ -86,5 +86,10 @@ namespace BootstrapBlazor.Components
         /// 获得/设置 查询按钮文本
         /// </summary>
         public string? SaveButtonText { get; set; }
+
+        /// <summary>
+        /// 获得/设置 数据变化类型
+        /// </summary>
+        public ItemChangedType ChangedType { get; set; } = ItemChangedType.Update;
     }
 }

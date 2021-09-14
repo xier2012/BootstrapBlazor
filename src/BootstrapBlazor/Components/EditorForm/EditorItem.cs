@@ -54,6 +54,12 @@ namespace BootstrapBlazor.Components
         public bool Readonly { get; set; }
 
         /// <summary>
+        /// 获得/设置 新添加item是否隐藏本字段 默认为 false 不隐藏
+        /// </summary>
+        [Parameter]
+        public bool IsReadonlyWhenNew { get; set; }
+
+        /// <summary>
         /// 获得/设置 是否不进行验证 默认为 false
         /// </summary>
         [Parameter]

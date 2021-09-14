@@ -269,6 +269,12 @@ namespace BootstrapBlazor.Components
         }
 
         /// <summary>
+        /// 获得/设置 新添加item是否隐藏本字段 默认为 false 不隐藏
+        /// </summary>
+        [Parameter]
+        public bool IsReadonlyWhenNew  { get; set; }
+
+        /// <summary>
         /// 组件初始化方法
         /// </summary>
         protected override void OnInitialized()

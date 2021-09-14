@@ -72,6 +72,11 @@ namespace BootstrapBlazor.Components
 
         public bool Readonly { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsReadonlyWhenNew { get; set; }
+
         public object? Step { get; set; }
 
         public int Rows { get; set; }
@@ -204,11 +209,12 @@ namespace BootstrapBlazor.Components
             if (source.AllowTextWrap) dest.AllowTextWrap = source.AllowTextWrap;
             if (source.Editable) dest.Editable = source.Editable;
             if (source.Filterable) dest.Filterable = source.Filterable;
-            if (source.Readonly || source.HideInAddNewItem) dest.Readonly = source.Readonly;
+            if (source.Readonly || source.IsReadonlyWhenNew) dest.Readonly = source.Readonly;
             if (source.Searchable) dest.Searchable = source.Searchable;
             if (source.ShowTips) dest.ShowTips = source.ShowTips;
             if (source.Sortable) dest.Sortable = source.Sortable;
             if (source.TextEllipsis) dest.TextEllipsis = source.TextEllipsis;
+            if (source.IsReadonlyWhenNew) dest.IsReadonlyWhenNew = source.IsReadonlyWhenNew;
         }
 
         /// <summary>
@@ -251,6 +257,7 @@ namespace BootstrapBlazor.Components
             if (source.Rows > 0) dest.Rows = source.Rows;
             if (source.ComponentType != null) dest.ComponentType = source.ComponentType;
             if (source.ComponentParameters != null) dest.ComponentParameters = source.ComponentParameters;
+            if (source.IsReadonlyWhenNew) dest.IsReadonlyWhenNew = source.IsReadonlyWhenNew;
         }
     }
 }

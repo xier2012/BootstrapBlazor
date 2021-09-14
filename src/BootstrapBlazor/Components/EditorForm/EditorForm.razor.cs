@@ -94,6 +94,12 @@ namespace BootstrapBlazor.Components
         public IEnumerable<IEditorItem>? Items { get; set; }
 
         /// <summary>
+        /// 获得/设置 数据变化类型
+        /// </summary>
+        [Parameter]
+        public ItemChangedType ChangedType { get; set; } = ItemChangedType.Update;
+
+        /// <summary>
         /// 获得/设置 级联上下文 EditContext 实例 内置于 EditForm 或者 ValidateForm 时有值
         /// </summary>
         [CascadingParameter]
@@ -205,6 +211,7 @@ namespace BootstrapBlazor.Components
                                 {
                                     // 设置只读属性与列模板
                                     item.Readonly = el.Readonly;
+                                    item.IsReadonlyWhenNew = el.IsReadonlyWhenNew;
                                     item.EditTemplate = el.EditTemplate;
                                     item.Text = el.Text;
                                     item.Data = el.Data;
@@ -228,7 +235,8 @@ namespace BootstrapBlazor.Components
 
         private RenderFragment AutoGenerateTemplate(IEditorItem item) => builder =>
         {
-            if (IsDisplay || item.Readonly)
+            //TODO: [Required] 和 AutoGenerateColumn 特性的 Editable/Readonly/ IsReadonlyWhenNew 存在优先级的冲突, 设置了这几个特性后,Required 就失效了,原因是没渲染为 input
+            if (IsDisplay || item.Readonly || !item.Editable || (ChangedType == ItemChangedType.Add && item.IsReadonlyWhenNew))
             {
                 builder.CreateDisplayByFieldType(this, item, Model, ShowLabel);
             }

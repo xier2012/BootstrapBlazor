@@ -22,9 +22,9 @@ namespace BootstrapBlazor.Components
         public bool Readonly { get; set; }
 
         /// <summary>
-        /// 获得/设置 新添加是否隐藏本字段 默认为 false 不隐藏
+        /// 获得/设置 新添加是否能编辑本字段 默认为 false 可编辑
         /// </summary>
-        public bool HideInAddNewItem { get; set; }
+        public bool IsReadonlyWhenNew { get; set; }
 
         /// <summary>
         /// 获得/设置 是否允许排序 默认为 false
