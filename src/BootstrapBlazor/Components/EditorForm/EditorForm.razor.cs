@@ -235,7 +235,6 @@ namespace BootstrapBlazor.Components
 
         private RenderFragment AutoGenerateTemplate(IEditorItem item) => builder =>
         {
-            //TODO: [Required] 和 AutoGenerateColumn 特性的 Editable/Readonly/ IsReadonlyWhenNew 存在优先级的冲突, 设置了这几个特性后,Required 就失效了,原因是没渲染为 input
             if (IsDisplay || item.Readonly || !item.Editable || (ChangedType == ItemChangedType.Add && item.IsReadonlyWhenNew))
             {
                 builder.CreateDisplayByFieldType(this, item, Model, ShowLabel);
