@@ -80,7 +80,6 @@ namespace BootstrapBlazor.Shared.Pages.Table
                 else if (propertyName == nameof(Foo.Complete))
                 {
                     col.Filterable = true;
-                    col.ComponentType = typeof(Switch);
                     // 使用 DisplayAttribute 设置显示名称示例
                     context.AddDisplayAttribute(nameof(Foo.Complete), new KeyValuePair<string, object?>[] {
                         new(nameof(DisplayAttribute.Name), Localizer[nameof(Foo.Complete)].Value)
@@ -95,7 +94,7 @@ namespace BootstrapBlazor.Shared.Pages.Table
             UserData.Columns.Add(nameof(Foo.Name), typeof(string));
             UserData.Columns.Add(nameof(Foo.Count), typeof(int));
 
-            Foo.GenerateWrapFoo(Localizer).ForEach(f =>
+            Foo.GenerateFoo(Localizer, 10).ForEach(f =>
             {
                 UserData.Rows.Add(f.DateTime, f.Name, f.Count);
             });
@@ -110,7 +109,7 @@ namespace BootstrapBlazor.Shared.Pages.Table
                 UserData.Columns.Add(nameof(Foo.Complete), typeof(bool));
 
                 // 更新数据
-                var fs = Foo.GenerateWrapFoo(Localizer);
+                var fs = Foo.GenerateFoo(Localizer, 10);
                 for (var i = 0; i < fs.Count; i++)
                 {
                     UserData.Rows[i][nameof(Foo.Complete)] = fs[i].Complete;

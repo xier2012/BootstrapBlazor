@@ -61,7 +61,7 @@ namespace BootstrapBlazor.Shared.Pages.Components
         ///
         /// </summary>
         [Display(Name = "是/否")]
-        [AutoGenerateColumn(Order = 50, ComponentType = typeof(Switch))]
+        [AutoGenerateColumn(Order = 50)]
         public bool Complete { get; set; }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace BootstrapBlazor.Shared.Pages.Components
         /// 
         /// </summary>
         /// <returns></returns>
-        public static List<Foo> GenerateFoo(IStringLocalizer<Foo> localizer) => Enumerable.Range(1, 80).Select(i => new Foo()
+        public static List<Foo> GenerateFoo(IStringLocalizer<Foo> localizer, int count = 80) => Enumerable.Range(1, count).Select(i => new Foo()
         {
             Id = i,
             Name = localizer["Foo.Name", $"{i:d4}"],
@@ -117,22 +117,43 @@ namespace BootstrapBlazor.Shared.Pages.Components
         /// 
         /// </summary>
         /// <returns></returns>
-        public static List<Foo> GenerateWrapFoo(IStringLocalizer<Foo> localizer) => Enumerable.Range(1, 4).Select(i => new Foo()
-        {
-            Id = i,
-            Name = localizer["Foo.Name", $"{i:d4}"],
-            DateTime = System.DateTime.Now.AddDays(i - 1),
-            Address = localizer["Foo.Address2", $"{random.Next(1000, 2000)}"],
-            Count = random.Next(1, 100),
-            Complete = random.Next(1, 100) > 50,
-            Education = random.Next(1, 100) > 50 ? EnumEducation.Primary : EnumEducation.Middel
-        }).ToList();
+        public static IEnumerable<SelectedItem> GenerateHobbys(IStringLocalizer<Foo> localizer) => localizer["Hobbys"].Value.Split(",").Select(i => new SelectedItem(i, i)).ToList();
+
 
         /// <summary>
-        /// 
+        /// 通过 Id 获取头像链接
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static string GetAvatarUrl(int id) => $"_content/BootstrapBlazor.Shared/images/avatars/150-{Math.Max(1, id % 25)}.jpg";
+
+        /// <summary>
+        /// 通过 Count 获得颜色
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static Color GetProgressColor(int count) => count switch
+        {
+            >= 0 and < 10 => Color.Secondary,
+            >= 10 and < 20 => Color.Danger,
+            >= 20 and < 40 => Color.Warning,
+            >= 40 and < 50 => Color.Info,
+            >= 50 and < 70 => Color.Primary,
+            _ => Color.Success
+        };
+
+        /// <summary>
+        /// 通过 Id 获取 Title
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<SelectedItem> GenerateHobbys(IStringLocalizer<Foo> localizer) => localizer["Hobbys"].Value.Split(",").Select(i => new SelectedItem(i, i)).ToList();
+        public static string GetTitle() => random.Next(1, 80) switch
+        {
+            >= 1 and < 10 => "Clerk",
+            >= 10 and < 50 => "Engineer",
+            >= 50 and < 60 => "Manager",
+            >= 60 and < 70 => "Chief",
+            _ => "General Manager"
+        };
     }
 
     /// <summary>

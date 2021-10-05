@@ -47,11 +47,21 @@ namespace UnitTest.Emit
 
             public bool Readonly { get; set; }
 
+            /// <summary>
+            /// 获得/设置 新建时此列只读 默认为 false
+            /// </summary>
+            public bool IsReadonlyWhenAdd { get; set; }
+
+            /// <summary>
+            /// 获得/设置 编辑时此列只读 默认为 false
+            /// </summary>
+            public bool IsReadonlyWhenEdit { get; set; }
+
             public bool SkipValidate { get; set; }
 
             public string Text { get; set; }
 
-            public IEnumerable<SelectedItem> Data { get; set; }
+            public IEnumerable<SelectedItem> Items { get; set; }
 
             public object Step { get; set; }
 
@@ -87,7 +97,7 @@ namespace UnitTest.Emit
 
             public BreakPoint ShownWithBreakPoint { get; set; }
 
-            public RenderFragment<object> Template { get; }
+            public RenderFragment<object> Template { get; set; }
 
             public RenderFragment<object> SearchTemplate { get; set; }
 
@@ -108,6 +118,8 @@ namespace UnitTest.Emit
             public Action<TableCellArgs> OnCellRender { get; set; }
 
             public IEnumerable<KeyValuePair<string, object>> ComponentParameters { get; set; }
+
+            public string PlaceHolder { get; set; }
 
             public string GetDisplayName() => Text ?? FieldName;
 

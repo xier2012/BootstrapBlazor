@@ -157,17 +157,20 @@ namespace BootstrapBlazor.Components
         private IStringLocalizer<DateTimeRange>? Localizer { get; set; }
 
         /// <summary>
-        /// OnInitialized
+        /// OnParametersSet 方法
         /// </summary>
-        protected override void OnInitialized()
+        protected override void OnParametersSet()
         {
-            base.OnInitialized();
+            base.OnParametersSet();
 
             StartValue = Value.Start;
             EndValue = Value.End;
 
             if (StartValue == DateTime.MinValue) StartValue = DateTime.Now;
             if (EndValue == DateTime.MinValue) EndValue = StartValue.AddMonths(1);
+
+            SelectedValue.Start = StartValue;
+            SelectedValue.End = EndValue;
 
             StartPlaceHolderText ??= Localizer[nameof(StartPlaceHolderText)];
             EndPlaceHolderText ??= Localizer[nameof(EndPlaceHolderText)];
@@ -178,6 +181,11 @@ namespace BootstrapBlazor.Components
             TodayButtonText ??= Localizer[nameof(TodayButtonText)];
 
             DateFormat ??= Localizer[nameof(DateFormat)];
+
+            if (StartValue.ToString("yyyy-MM") == EndValue.ToString("yyyy-MM"))
+            {
+                StartValue = StartValue.AddMonths(-1);
+            }
 
             if (SidebarItems == null)
             {
@@ -225,6 +233,10 @@ namespace BootstrapBlazor.Components
             {
                 await ValueChanged.InvokeAsync(Value);
             }
+            if (OnValueChanged != null)
+            {
+                await OnValueChanged(Value);
+            }
             if (OnClearValue != null) await OnClearValue(Value);
 
             StartValue = DateTime.Today;
@@ -250,6 +262,18 @@ namespace BootstrapBlazor.Components
         /// </summary>
         private async Task ClickConfirmButton()
         {
+            if (SelectedValue.End == DateTime.MinValue)
+            {
+                if (SelectedValue.Start < DateTime.Now)
+                {
+                    SelectedValue.End = DateTime.Now;
+                }
+                else
+                {
+                    SelectedValue.End = SelectedValue.Start;
+                    SelectedValue.Start = DateTime.Now;
+                }
+            }
             Value = SelectedValue;
             if (Value.End.Hour == 0)
             {
@@ -258,6 +282,10 @@ namespace BootstrapBlazor.Components
             if (ValueChanged.HasDelegate)
             {
                 await ValueChanged.InvokeAsync(Value);
+            }
+            if (OnValueChanged != null)
+            {
+                await OnValueChanged(Value);
             }
             if (OnConfirm != null) await OnConfirm(Value);
             await JSRuntime.InvokeVoidAsync(PickerRange, "bb_datetimeRange", "hide");

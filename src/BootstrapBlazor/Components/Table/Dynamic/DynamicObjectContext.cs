@@ -77,28 +77,27 @@ namespace BootstrapBlazor.Components
             : Enumerable.Empty<CustomAttributeBuilder>();
 
         /// <summary>
-        /// 
+        /// 动态类型新建回调委托
         /// </summary>
+        /// <param name="selectedItems">当前选中行</param>
         /// <returns></returns>
-        public abstract Task<IDynamicObject> AddAsync();
+        public abstract Task AddAsync(IEnumerable<IDynamicObject> selectedItems);
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="changedType"></param>
-        /// <returns></returns>
-        public abstract Task<bool> SaveAsync(IDynamicObject item, ItemChangedType changedType);
-
-        /// <summary>
-        /// 
+        /// 动态类型删除回调委托
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
         public abstract Task<bool> DeleteAsync(IEnumerable<IDynamicObject> items);
 
         /// <summary>
-        /// 
+        /// 动态类型集合变化时回调方法
+        /// </summary>
+        /// <returns></returns>
+        public Func<IDynamicObject, ITableColumn, object?, Task>? OnValueChanged { get; set; }
+
+        /// <summary>
+        /// 动态类型属性值变化时回调方法
         /// </summary>
         /// <returns></returns>
         public Func<DynamicObjectContextArgs, Task>? OnChanged { get; set; }

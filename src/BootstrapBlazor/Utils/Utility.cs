@@ -12,11 +12,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace BootstrapBlazor.Components
 {
@@ -27,6 +29,7 @@ namespace BootstrapBlazor.Components
     {
         private static ConcurrentDictionary<(string CultureInfoName, Type ModelType, string FieldName), string> DisplayNameCache { get; } = new();
         private static ConcurrentDictionary<(Type ModelType, string FieldName), PropertyInfo> PropertyInfoCache { get; } = new();
+
         private static ConcurrentDictionary<(Type ModelType, string FieldName), string> PlaceHolderCache { get; } = new();
 
         private static ConcurrentDictionary<(Type ModelType, string FieldName), Func<object, object?>> GetPropertyValueLambdaCache { get; } = new();
@@ -285,13 +288,24 @@ namespace BootstrapBlazor.Components
             var fieldValueChanged = GenerateValueChanged(component, model, fieldName, fieldType);
             var valueExpression = GenerateValueExpression(model, fieldName, fieldType);
 
-            builder.OpenComponent(0, typeof(Display<>).MakeGenericType(fieldType));
-            builder.AddAttribute(1, nameof(ValidateBase<string>.DisplayText), displayName);
-            builder.AddAttribute(2, nameof(ValidateBase<string>.Value), fieldValue);
-            builder.AddAttribute(3, nameof(ValidateBase<string>.ValueChanged), fieldValueChanged);
-            builder.AddAttribute(4, nameof(ValidateBase<string>.ValueExpression), valueExpression);
-            builder.AddAttribute(5, nameof(ValidateBase<string>.ShowLabel), showLabel ?? true);
-            builder.CloseComponent();
+            var type = (Nullable.GetUnderlyingType(fieldType) ?? fieldType);
+            if (type == typeof(bool) || fieldValue?.GetType() == typeof(bool))
+            {
+                builder.OpenComponent<Switch>(0);
+                builder.AddAttribute(1, nameof(Switch.Value), fieldValue);
+                builder.AddAttribute(2, nameof(Switch.IsDisabled), true);
+                builder.CloseComponent();
+            }
+            else
+            {
+                builder.OpenComponent(0, typeof(Display<>).MakeGenericType(fieldType));
+                builder.AddAttribute(1, nameof(ValidateBase<string>.DisplayText), displayName);
+                builder.AddAttribute(2, nameof(ValidateBase<string>.Value), fieldValue);
+                builder.AddAttribute(3, nameof(ValidateBase<string>.ValueChanged), fieldValueChanged);
+                builder.AddAttribute(4, nameof(ValidateBase<string>.ValueExpression), valueExpression);
+                builder.AddAttribute(5, nameof(ValidateBase<string>.ShowLabel), showLabel ?? true);
+                builder.CloseComponent();
+            }
         }
 
         /// <summary>
@@ -302,8 +316,8 @@ namespace BootstrapBlazor.Components
         /// <param name="component"></param>
         /// <param name="item"></param>
         /// <param name="showLabel"></param>
-        /// <param name="placeholder"></param>
-        public static void CreateComponentByFieldType(this RenderTreeBuilder builder, ComponentBase component, IEditorItem item, object model, bool? showLabel = null, string? placeholder = null)
+        /// <param name="changedType"></param>
+        public static void CreateComponentByFieldType(this RenderTreeBuilder builder, ComponentBase component, IEditorItem item, object model, bool? showLabel = null, ItemChangedType changedType = ItemChangedType.Update)
         {
             var fieldType = item.PropertyType;
             var fieldName = item.GetFieldName();
@@ -320,18 +334,22 @@ namespace BootstrapBlazor.Components
                 builder.AddAttribute(2, nameof(ValidateBase<string>.Value), fieldValue);
                 builder.AddAttribute(3, nameof(ValidateBase<string>.ValueChanged), fieldValueChanged);
                 builder.AddAttribute(4, nameof(ValidateBase<string>.ValueExpression), valueExpression);
-                builder.AddAttribute(5, nameof(ValidateBase<string>.IsDisabled), item.Readonly);
+
+                if (!item.IsEditable(changedType))
+                {
+                    builder.AddAttribute(5, nameof(ValidateBase<string>.IsDisabled), true);
+                }
             }
 
-            if (IsCheckboxList(fieldType) && item.Data != null)
+            if (IsCheckboxList(fieldType) && item.Items != null)
             {
-                builder.AddAttribute(6, nameof(CheckboxList<IEnumerable<string>>.Items), item.Data);
+                builder.AddAttribute(6, nameof(CheckboxList<IEnumerable<string>>.Items), item.Items.Clone());
             }
 
             // 增加非枚举类,手动设定 ComponentType 为 Select 并且 Data 有值 自动生成下拉框
-            if (item.Data != null && item.ComponentType == typeof(Select<>).MakeGenericType(fieldType))
+            if (item.Items != null && item.ComponentType == typeof(Select<>).MakeGenericType(fieldType))
             {
-                builder.AddAttribute(7, nameof(Select<SelectedItem>.Items), item.Data);
+                builder.AddAttribute(7, nameof(Select<SelectedItem>.Items), item.Items.Clone());
             }
 
             // 设置 SkipValidate 参数
@@ -340,7 +358,7 @@ namespace BootstrapBlazor.Components
                 builder.AddAttribute(8, nameof(IEditorItem.SkipValidate), item.SkipValidate);
             }
 
-            builder.AddMultipleAttributes(9, CreateMultipleAttributes(fieldType, model, fieldName, item, showLabel, placeholder));
+            builder.AddMultipleAttributes(9, CreateMultipleAttributes(fieldType, model, fieldName, item, showLabel));
 
             if (item.ComponentParameters != null)
             {
@@ -348,6 +366,13 @@ namespace BootstrapBlazor.Components
             }
             builder.CloseComponent();
         }
+
+        private static List<SelectedItem> Clone(this IEnumerable<SelectedItem> source) => source.Select(d => new SelectedItem(d.Value, d.Text)
+        {
+            Active = d.Active,
+            IsDisabled = d.IsDisabled,
+            GroupName = d.GroupName
+        }).ToList();
 
         private static object? GenerateValue(object model, string fieldName)
         {
@@ -378,7 +403,7 @@ namespace BootstrapBlazor.Components
         /// 通过指定类型生成组件类型
         /// </summary>
         /// <param name="fieldType"></param>
-        /// <param name="hasRows"></param>
+        /// <param name="hasRows">是否为 Textarea 组件</param>
         /// <returns></returns>
         private static Type GenerateComponentType(Type fieldType, bool hasRows)
         {
@@ -397,7 +422,7 @@ namespace BootstrapBlazor.Components
                 switch (type.Name)
                 {
                     case nameof(Boolean):
-                        ret = typeof(Checkbox<>).MakeGenericType(fieldType);
+                        ret = typeof(Switch);
                         break;
                     case nameof(DateTime):
                         ret = typeof(DateTimePicker<>).MakeGenericType(fieldType);
@@ -446,16 +471,15 @@ namespace BootstrapBlazor.Components
         /// <param name="fieldName">字段名称</param>
         /// <param name="item">IEditorItem 实例</param>
         /// <param name="showLabel"></param>
-        /// <param name="placeholder"></param>
         /// <returns></returns>
-        private static IEnumerable<KeyValuePair<string, object>> CreateMultipleAttributes(Type fieldType, object model, string fieldName, IEditorItem item, bool? showLabel = null, string? placeholder = null)
+        private static IEnumerable<KeyValuePair<string, object>> CreateMultipleAttributes(Type fieldType, object model, string fieldName, IEditorItem item, bool? showLabel = null)
         {
             var ret = new List<KeyValuePair<string, object>>();
             var type = Nullable.GetUnderlyingType(fieldType) ?? fieldType;
             switch (type.Name)
             {
                 case nameof(String):
-                    var ph = item.PlaceHolder ?? Utility.GetPlaceHolder(model, fieldName) ?? placeholder;
+                    var ph = item.PlaceHolder ?? Utility.GetPlaceHolder(model, fieldName);
                     if (ph != null)
                     {
                         ret.Add(new("placeholder", ph));
@@ -514,6 +538,24 @@ namespace BootstrapBlazor.Components
             var body = Expression.Call(null, method, exp_p1, exp_p2, exp_p3);
 
             return Expression.Lambda<Func<ComponentBase, object, string, object>>(Expression.Convert(body, typeof(object)), exp_p1, exp_p2, exp_p3);
+        }
+
+        private static Func<TType, Task> CreateOnValueChangedCallback<TModel, TType>(TModel model, ITableColumn col, Func<TModel, ITableColumn, object?, Task> callback) => new(v => callback(model, col, v));
+
+        /// <summary>
+        /// 创建 OnValueChanged 回调委托
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <returns></returns>
+        public static Expression<Func<TModel, ITableColumn, Func<TModel, ITableColumn, object?, Task>, object>> CreateOnValueChanged<TModel>(Type fieldType)
+        {
+            var method = typeof(Utility).GetMethod(nameof(CreateOnValueChangedCallback), BindingFlags.Static | BindingFlags.NonPublic)!.MakeGenericMethod(typeof(TModel), fieldType);
+            var exp_p1 = Expression.Parameter(typeof(TModel));
+            var exp_p2 = Expression.Parameter(typeof(ITableColumn));
+            var exp_p3 = Expression.Parameter(typeof(Func<,,,>).MakeGenericType(typeof(TModel), typeof(ITableColumn), typeof(object), typeof(Task)));
+            var body = Expression.Call(null, method, exp_p1, exp_p2, exp_p3);
+
+            return Expression.Lambda<Func<TModel, ITableColumn, Func<TModel, ITableColumn, object?, Task>, object>>(Expression.Convert(body, typeof(object)), exp_p1, exp_p2, exp_p3);
         }
         #endregion
 

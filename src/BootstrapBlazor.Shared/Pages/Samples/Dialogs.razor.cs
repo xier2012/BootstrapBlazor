@@ -130,7 +130,7 @@ namespace BootstrapBlazor.Shared.Pages
             }
         });
 
-        private int DataPrimaryId { get; set; }
+        private int DataPrimaryId { get; set; } = 1;
 
         private async Task OnClickShowDataById()
         {
@@ -164,7 +164,26 @@ namespace BootstrapBlazor.Shared.Pages
             Trace.Log($"弹窗返回值为: {result} 组件返回值为: {DemoValue1}");
         }
 
+        private async Task OnPrintDialogClick()
+        {
+            var op = new DialogOption()
+            {
+                Title = "数据查询窗口",
+                ShowPrintButton = true,
+                ShowPrintButtonInHeader = true,
+                ShowFooter = false,
+                BodyContext = DataPrimaryId
+            };
+            op.BodyTemplate = BootstrapDynamicComponent.CreateComponent<DataDialogComponent>(new KeyValuePair<string, object>[]
+            {
+                new(nameof(DataDialogComponent.OnClose), new Action(async () => await op.Dialog.Close()))
+            }).Render();
+
+            await DialogService.Show(op);
+        }
+
         private string? InputValue { get; set; }
+
         private IEnumerable<string> Emails { get; set; } = Array.Empty<string>();
 
         private async Task OnEmailButtonClick()
@@ -277,6 +296,20 @@ namespace BootstrapBlazor.Shared.Pages
                     DefaultValue = "true"
                 },
                 new AttributeItem() {
+                    Name = nameof(DialogOption.ShowPrintButton),
+                    Description = "是否显示打印按钮",
+                    Type = "boolean",
+                    ValueList = "true|false",
+                    DefaultValue = "false"
+                },
+                new AttributeItem() {
+                    Name = nameof(DialogOption.ShowPrintButtonInHeader),
+                    Description = "打印按钮是否显示在 Header 中",
+                    Type = "boolean",
+                    ValueList = "true|false",
+                    DefaultValue = "false"
+                },
+                new AttributeItem() {
                     Name = "Size",
                     Description = "尺寸",
                     Type = "Size",
@@ -290,6 +323,13 @@ namespace BootstrapBlazor.Shared.Pages
                     ValueList = " — ",
                     DefaultValue = " 未设置 "
                 },
+                new AttributeItem() {
+                    Name = nameof(DialogOption.PrintButtonText),
+                    Description = "打印按钮显示文字",
+                    Type = "string",
+                    ValueList = " — ",
+                    DefaultValue = "资源文件中设定值"
+                }
             };
         }
     }

@@ -4,13 +4,10 @@
 
 using BootstrapBlazor.Components;
 using BootstrapBlazor.Localization.Json;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Text.Json;
+using System.Globalization;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -49,6 +46,19 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<BootstrapBlazorOptions>(options =>
             {
                 configureOptions?.Invoke(options);
+
+                if (options.TableSettings == null)
+                {
+                    options.TableSettings = new TableSettings();
+                }
+
+                // 设置默认文化信息
+                if (options.DefaultCultureInfo != null)
+                {
+                    var culture = new CultureInfo(options.DefaultCultureInfo);
+                    CultureInfo.DefaultThreadCurrentCulture = culture;
+                    CultureInfo.DefaultThreadCurrentUICulture = culture;
+                }
             });
 
             services.AddHttpClient();
@@ -58,41 +68,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 locatorAction?.Invoke(options);
             });
             return services;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <returns></returns>
-        public static IApplicationBuilder UseBootstrapBlazor(this IApplicationBuilder builder)
-        {
-            // 获得客户端 IP 地址
-            builder.UseWhen(context => context.Request.Path.StartsWithSegments("/ip.axd"), app => app.Run(async context =>
-            {
-                var ip = "";
-                var headers = context.Request.Headers;
-                if (headers.ContainsKey("X-Forwarded-For"))
-                {
-                    var ips = new List<string>();
-                    foreach (var xf in headers["X-Forwarded-For"])
-                    {
-                        if (!string.IsNullOrEmpty(xf))
-                        {
-                            ips.Add(xf);
-                        }
-                    }
-                    ip = string.Join(";", ips);
-                }
-                else
-                {
-                    ip = context.Connection.RemoteIpAddress.ToIPv4String();
-                }
-
-                context.Response.Headers.Add("Content-Type", new Microsoft.Extensions.Primitives.StringValues("application/json; charset=utf-8"));
-                await context.Response.WriteAsync(JsonSerializer.Serialize(new { Id = context.TraceIdentifier, Ip = ip }));
-            }));
-            return builder;
         }
     }
 }

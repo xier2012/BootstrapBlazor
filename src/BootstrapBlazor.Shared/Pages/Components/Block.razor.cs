@@ -40,6 +40,12 @@ namespace BootstrapBlazor.Shared.Pages.Components
         private IStringLocalizer<Block>? Localizer { get; set; }
 
         /// <summary>
+        /// 获得/设置 友好链接锚点名称
+        /// </summary>
+        [Parameter]
+        public string? Name { get; set; }
+
+        /// <summary>
         /// OnInitialized 方法
         /// </summary>
         protected override void OnInitialized()

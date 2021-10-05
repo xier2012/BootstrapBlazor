@@ -10,9 +10,11 @@
 }
 else
 {
-    <NavLink @attributes="@AdditionalAttributes" class="@ClassString" href="@HrefString" target="@TargetString" @onclick="@OnClickLink" Match="@ItemMatch" style="@StyleClassString">
-        <i class="@IconString"></i>
-        <span class="text">@Item.Text</span>
+    <NavLink @attributes="@AdditionalAttributes" class="@ClassString" href="@HrefString" target="@TargetString" Match="@ItemMatch" style="@StyleClassString">
+        <div class="flex-fill" @onclick="@OnClickLink">
+            <i class="@IconString"></i>
+            <span class="text">@Item.Text</span>
+        </div>
         @if (Item.Component != null)
         {
             <div class="widget">

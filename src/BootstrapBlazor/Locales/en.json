@@ -1,4 +1,7 @@
 ﻿{
+  "BootstrapBlazor.Components.AnchorLink": {
+    "TooltipText": "Copied"
+  },
   "BootstrapBlazor.Components.AutoComplete": {
     "NoDataTip": "No Data",
     "PlaceHolder": "Please Input"
@@ -135,7 +138,8 @@
     "InvalidOperationExceptionMessage": "Please place <Message /> element on current page"
   },
   "BootstrapBlazor.Components.ModalDialog": {
-    "CloseButtonText": "Close"
+    "CloseButtonText": "Close",
+    "PrintButtonText": "Print"
   },
   "BootstrapBlazor.Components.MultiSelect": {
     "PlaceHolder": "Click for select ...",
@@ -164,6 +168,9 @@
   },
   "BootstrapBlazor.Components.PopoverService": {
     "InvalidOperationExceptionMessage": "Please place <PopoverConfirm /> element on current page"
+  },
+  "BootstrapBlazor.Components.Print": {
+    "Text": "Print"
   },
   "BootstrapBlazor.Components.PrintService": {
     "InvalidOperationExceptionMessage": "Please place <Print /> element on current page"
@@ -227,13 +234,13 @@
     "SearchTooltip": "<div class='search-input-tooltip'>Please input ...</br><kbd>Enter</kbd> Search <kbd>ESC</kbd> Clear</div>",
     "SearchModalTitle": "Searching",
     "AddButtonToastTitle": "Add Data",
-    "AddButtonToastContent": "Save data failed. Please provider SAVE method",
+    "AddButtonToastContent": "Add data failed. Please provider OnAddAsync method",
     "EditButtonToastTitle": "Add Data",
-    "EditButtonToastNotSelectContent": "Save data failed. Please provider SAVE method",
+    "EditButtonToastNotSelectContent": "Save data failed. Please provider OnSaveAsync method",
     "EditButtonToastMoreSelectContent": "Only one row can be EDIT",
-    "EditButtonToastNoSaveMethodContent": "Can not EDIT data. Please provider SAVE method",
+    "EditButtonToastNoSaveMethodContent": "Can not EDIT data. Please provider OnSaveAsync method",
     "SaveButtonToastTitle": "Save Data",
-    "SaveButtonToastContent": "Save data failed. Please provider SAVE method",
+    "SaveButtonToastContent": "Save data failed. Please provider OnSaveAsync method",
     "SaveButtonToastResultContent": "Save data {0}, auto close after {1}s",
     "SuccessText": "Successful",
     "FailText": "Failed",

@@ -97,12 +97,14 @@ namespace BootstrapBlazor.Components
         /// <summary>
         /// 获得/设置 是否显示刷新按钮 默认为 true
         /// </summary>
+        /// <remarks><see cref="IsExcel"/> 模式下此设置无效</remarks>
         [Parameter]
         public bool ShowRefresh { get; set; } = true;
 
         /// <summary>
         /// 获得/设置 是否显示视图按钮 默认为 false
         /// </summary>
+        /// <remarks><see cref="IsExcel"/> 模式下此设置无效</remarks>
         [Parameter]
         public bool ShowCardView { get; set; }
 
@@ -215,7 +217,31 @@ namespace BootstrapBlazor.Components
         /// </summary>
         public async Task AddAsync()
         {
-            if (UseInjectDataService || IsTracking || OnSaveAsync != null)
+            if (IsExcel)
+            {
+                await AddDynamicOjbectExcelModelAsync();
+            }
+            else if (UseInjectDataService || IsTracking || OnSaveAsync != null)
+            {
+                await AddItemAsync();
+            }
+            else
+            {
+                await ShowAddToastAsync(SaveButtonToastContent);
+            }
+
+            async Task ShowAddToastAsync(string content)
+            {
+                var option = new ToastOption
+                {
+                    Category = ToastCategory.Error,
+                    Title = AddButtonToastTitle,
+                    Content = content
+                };
+                await Toast.Show(option);
+            }
+
+            async Task AddItemAsync()
             {
                 await ToggleLoading(true);
                 if (OnAddAsync != null)
@@ -234,7 +260,6 @@ namespace BootstrapBlazor.Components
 
                 SelectedItems.Clear();
                 EditModalTitleString = AddModalTitle;
-
                 if (IsTracking)
                 {
                     RowItems.Insert(0, EditModel);
@@ -260,15 +285,33 @@ namespace BootstrapBlazor.Components
                 }
                 await ToggleLoading(false);
             }
-            else
+
+            async Task AddDynamicOjbectExcelModelAsync()
             {
-                var option = new ToastOption
+                if (DynamicContext != null)
                 {
-                    Category = ToastCategory.Error,
-                    Title = AddButtonToastTitle,
-                    Content = AddButtonToastContent
-                };
-                await Toast.Show(option);
+                    // 数据源为 DataTable 新建后重建行与列
+                    await DynamicContext.AddAsync(SelectedItems.AsEnumerable().OfType<IDynamicObject>());
+                    ResetDynamicContext();
+                    if (SelectedRows != null)
+                    {
+                        SelectedItems.AddRange(RowItems.Where(i => SelectedRows.Contains(i)));
+                    }
+                    StateHasChanged();
+                }
+                else
+                {
+                    if (OnAddAsync != null)
+                    {
+                        // TODO: 新建模式下插入新行位置如何判断？
+                        await OnAddAsync();
+                        await QueryAsync();
+                    }
+                    else
+                    {
+                        await ShowAddToastAsync(AddButtonToastContent);
+                    }
+                }
             }
         }
 
@@ -463,6 +506,7 @@ namespace BootstrapBlazor.Components
             RowType = EditDialogRowType,
             ItemsPerRow = EditDialogItemsPerRow,
             LabelAlign = EditDialogLabelAlign,
+            ItemChangedType = changedType,
             OnCloseAsync = async () =>
             {
                 if (UseInjectDataService && GetDataService() is IEntityFrameworkCoreDataService ef)
@@ -527,15 +571,39 @@ namespace BootstrapBlazor.Components
         /// </summary>
         protected Func<Task> DeleteAsync() => async () =>
         {
-            await ToggleLoading(true);
-            var ret = false;
-            if (IsTracking)
+            if (IsExcel)
             {
-                RowItems.RemoveAll(i => SelectedItems.Any(item => item == i));
-                ret = true;
+                await DeleteDynamicObjectExcelModelAsync();
+            }
+            else if (IsTracking)
+            {
+                RowItems.RemoveAll(i => SelectedItems.Contains(i));
+                SelectedItems.Clear();
+                await OnSelectedRowsChanged();
+                await UpdateAsync();
             }
             else
             {
+                await ToggleLoading(true);
+                var ret = await DelteItemsAsync();
+
+                var option = new ToastOption()
+                {
+                    Title = DeleteButtonToastTitle
+                };
+                option.Category = ret ? ToastCategory.Success : ToastCategory.Error;
+                option.Content = string.Format(DeleteButtonToastResultContent, ret ? SuccessText : FailText, Math.Ceiling(option.Delay / 1000.0));
+
+                if ((ShowErrorToast || ret) && !IsTracking)
+                {
+                    await Toast.Show(option);
+                }
+                await ToggleLoading(false);
+            }
+
+            async Task<bool> DelteItemsAsync()
+            {
+                var ret = false;
                 if (OnDeleteAsync != null)
                 {
                     ret = await OnDeleteAsync(SelectedItems);
@@ -544,52 +612,65 @@ namespace BootstrapBlazor.Components
                 {
                     ret = await GetDataService().DeleteAsync(SelectedItems);
                 }
+                if (ret)
+                {
+                    // 删除成功 重新查询
+                    // 由于数据删除导致页码会改变，尤其是最后一页
+                    // 重新计算页码
+                    // https://gitee.com/LongbowEnterprise/BootstrapBlazor/issues/I1UJSL
+                    PageIndex = Math.Max(1, Math.Min(PageIndex, int.Parse(Math.Ceiling((TotalCount - SelectedItems.Count) * 1d / PageItems).ToString())));
+                    var items = PageItemsSource.Where(item => item >= (TotalCount - SelectedItems.Count));
+                    PageItems = Math.Min(PageItems, items.Any() ? items.Min() : PageItems);
+
+                    if (SelectedRows != null && SelectedRows.Any())
+                    {
+                        SelectedRows.RemoveAll(item => SelectedItems.Contains(item));
+                        if (SelectedRowsChanged.HasDelegate)
+                        {
+                            await SelectedRowsChanged.InvokeAsync(SelectedRows);
+                        }
+                    }
+
+                    SelectedItems.Clear();
+                    await QueryAsync();
+                }
+                return ret;
             }
 
-            var option = new ToastOption()
+            async Task DeleteDynamicObjectExcelModelAsync()
             {
-                Title = DeleteButtonToastTitle
-            };
-            option.Category = ret ? ToastCategory.Success : ToastCategory.Error;
-            option.Content = string.Format(DeleteButtonToastResultContent, ret ? SuccessText : FailText, Math.Ceiling(option.Delay / 1000.0));
-
-            if (ret)
-            {
-                // 删除成功 重新查询
-                // 由于数据删除导致页码会改变，尤其是最后一页
-                // 重新计算页码
-                // https://gitee.com/LongbowEnterprise/BootstrapBlazor/issues/I1UJSL
-                PageIndex = Math.Max(1, Math.Min(PageIndex, int.Parse(Math.Ceiling((TotalCount - SelectedItems.Count) * 1d / PageItems).ToString())));
-                var items = PageItemsSource.Where(item => item >= (TotalCount - SelectedItems.Count));
-                PageItems = Math.Min(PageItems, items.Any() ? items.Min() : PageItems);
-
-                if (SelectedRows != null && SelectedRows.Any())
+                if (DynamicContext != null)
                 {
-                    SelectedRows.RemoveAll(item => SelectedItems.Contains(item));
-                    if (SelectedRowsChanged.HasDelegate)
-                    {
-                        await SelectedRowsChanged.InvokeAsync(SelectedRows);
-                    }
-                }
-
-                SelectedItems.Clear();
-
-                if (!IsTracking)
-                {
-                    await QueryAsync();
+                    await DynamicContext.DeleteAsync(SelectedItems.AsEnumerable().OfType<IDynamicObject>());
+                    ResetDynamicContext();
+                    StateHasChanged();
                 }
                 else
                 {
-                    await UpdateAsync();
+                    if (OnDeleteAsync != null)
+                    {
+                        await OnDeleteAsync(SelectedItems);
+                        await QueryAsync();
+                    }
                 }
             }
-            if ((ShowErrorToast || ret) && !IsTracking)
-            {
-                await Toast.Show(option);
-            }
-
-            await ToggleLoading(false);
         };
+
+        private void ResetDynamicContext()
+        {
+            if (DynamicContext != null && typeof(TItem).IsAssignableTo(typeof(IDynamicObject)))
+            {
+                AutoGenerateColumns = false;
+
+                var cols = DynamicContext.GetColumns();
+                Columns.Clear();
+                Columns.AddRange(cols);
+
+                SelectedItems.Clear();
+                QueryItems = DynamicContext.GetItems().Cast<TItem>();
+                RowItemsCache = null;
+            }
+        }
 
         /// <summary>
         /// 确认导出按钮方法

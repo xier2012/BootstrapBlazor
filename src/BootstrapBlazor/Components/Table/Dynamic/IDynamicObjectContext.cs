@@ -28,16 +28,9 @@ namespace BootstrapBlazor.Components
         /// <summary>
         /// 新建方法
         /// </summary>
+        /// <param name="selectedItems">当前选中行</param>
         /// <returns></returns>
-        Task<IDynamicObject> AddAsync();
-
-        /// <summary>
-        /// 保存方法
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="changedType"></param>
-        /// <returns></returns>
-        Task<bool> SaveAsync(IDynamicObject item, ItemChangedType changedType);
+        Task AddAsync(IEnumerable<IDynamicObject> selectedItems);
 
         /// <summary>
         /// 删除方法
@@ -47,7 +40,13 @@ namespace BootstrapBlazor.Components
         Task<bool> DeleteAsync(IEnumerable<IDynamicObject> items);
 
         /// <summary>
-        /// 
+        /// 动态类型属性值变化时回调方法
+        /// </summary>
+        /// <returns></returns>
+        Func<IDynamicObject, ITableColumn, object?, Task>? OnValueChanged { get; set; }
+
+        /// <summary>
+        /// 动态类型集合变化时回调方法
         /// </summary>
         Func<DynamicObjectContextArgs, Task>? OnChanged { get; set; }
     }

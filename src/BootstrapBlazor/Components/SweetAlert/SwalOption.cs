@@ -31,7 +31,7 @@ namespace BootstrapBlazor.Components
         /// <summary>
         /// 获得/设置 弹窗标题
         /// </summary>
-        public string Title { get; set; } = "";
+        public string? Title { get; set; }
 
         /// <summary>
         /// 获得/设置 相关连数据，多用于传值使用
@@ -90,13 +90,16 @@ namespace BootstrapBlazor.Components
         {
             var parameters = new List<KeyValuePair<string, object>>
             {
-                new(nameof(Title), Title),
                 new(nameof(Size), Size.Medium),
                 new(nameof(ModalDialog.IsCentered), true),
                 new(nameof(ModalDialog.IsScrolling), false),
                 new(nameof(ModalDialog.ShowCloseButton), false),
                 new(nameof(ShowFooter), false)
             };
+            if (!string.IsNullOrEmpty(Title))
+            {
+                parameters.Add(new(nameof(ModalDialog.Title), Title));
+            }
             if (BodyContext != null)
             {
                 parameters.Add(new(nameof(BodyContext), BodyContext));

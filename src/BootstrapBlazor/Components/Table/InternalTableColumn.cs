@@ -41,6 +41,16 @@ namespace BootstrapBlazor.Components
         /// </summary>
         public bool SkipValidate { get; set; }
 
+        /// <summary>
+        /// 获得/设置 新建时此列只读 默认为 false
+        /// </summary>
+        public bool IsReadonlyWhenAdd { get; set; }
+
+        /// <summary>
+        /// 获得/设置 编辑时此列只读 默认为 false
+        /// </summary>
+        public bool IsReadonlyWhenEdit { get; set; }
+
         public string? CssClass { get; set; }
 
         public BreakPoint ShownWithBreakPoint { get; set; }
@@ -94,7 +104,7 @@ namespace BootstrapBlazor.Components
         /// <summary>
         /// 获得/设置 额外数据源一般用于下拉框或者 CheckboxList 这种需要额外配置数据源组件使用
         /// </summary>
-        public IEnumerable<SelectedItem>? Data { get; set; }
+        public IEnumerable<SelectedItem>? Items { get; set; }
 
         /// <summary>
         /// 获得/设置 显示顺序
@@ -238,19 +248,18 @@ namespace BootstrapBlazor.Components
             if (source.Sortable) dest.Sortable = source.Sortable;
             if (source.TextEllipsis) dest.TextEllipsis = source.TextEllipsis;
             if (source.SkipValidate) dest.SkipValidate = source.SkipValidate;
-            if (source.Data != null) dest.Data = source.Data;
+            if (source.Items != null) dest.Items = source.Items;
             if (source.Lookup != null) dest.Lookup = source.Lookup;
-            if (source.Template != null)
-            {
-                if (dest is InternalTableColumn d) d.Template = source.Template;
-                else if (dest is AutoGenerateColumnAttribute attr) attr.Template = source.Template;
-            }
+            if (source.Template != null) dest.Template = source.Template;
             if (!source.Visible) dest.Visible = source.Visible;
             if (source.Width != null) dest.Width = source.Width;
             if (!string.IsNullOrEmpty(source.Text)) dest.Text = source.Text;
             if (source.Rows > 0) dest.Rows = source.Rows;
             if (source.ComponentType != null) dest.ComponentType = source.ComponentType;
             if (source.ComponentParameters != null) dest.ComponentParameters = source.ComponentParameters;
+            if (source.OnCellRender != null) dest.OnCellRender = source.OnCellRender;
+            if (!source.IsReadonlyWhenAdd) dest.IsReadonlyWhenAdd = source.IsReadonlyWhenAdd;
+            if (!source.IsReadonlyWhenEdit) dest.IsReadonlyWhenEdit = source.IsReadonlyWhenEdit;
         }
     }
 }

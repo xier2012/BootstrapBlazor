@@ -3,6 +3,21 @@
         bb_table_search: function (el, obj, searchMethod, clearSearchMethod) {
             $(el).data('bb_table_search', { obj: obj, searchMethod, clearSearchMethod });
         },
+        bb_table_row_hover: function ($ele) {
+            var $toolbar = $ele.find('.table-excel-toolbar');
+
+            var $rows = $ele.find('tbody > tr').each(function (index, row) {
+                $(row).hover(
+                    function () {
+                        var top = $(this).position().top;
+                        $toolbar.css({ 'top': top + 'px', 'display': 'block' });
+                    },
+                    function () {
+                        $toolbar.css({ 'top': top + 'px', 'display': 'none' });
+                    }
+                );
+            });
+        },
         bb_table_resize: function ($ele) {
             var resizer = $ele.find('.col-resizer');
             if (resizer.length > 0) {
@@ -52,7 +67,7 @@
                                     $table.width(tableWidth + marginX);
                                 }
                                 else {
-                                    $table.width(tableWidth + marginX - 17);
+                                    $table.width(tableWidth + marginX - 6);
                                 }
                             });
                         },
@@ -71,50 +86,164 @@
             else
                 $loader.removeClass('show');
         },
-        bb_table_filter: function ($ele) {
+        bb_table_filter_calc: function ($ele) {
             // filter
             var $toolbar = $ele.find('.table-toolbar');
             var marginTop = 0;
             if ($toolbar.length > 0) marginTop = $toolbar.outerHeight();
 
-            var calcPosition = function () {
-                // position
-                var $this = $(this);
-                var position = $this.position();
-                var field = $this.attr('data-field');
-                var $body = $ele.find('.table-filter-item[data-field="' + field + '"]');
-                var $th = $this.closest('th');
-                var $thead = $th.closest('thead');
-                var rowHeight = $thead.outerHeight() - $th.outerHeight();
-                var left = $th.outerWidth() + $th.position().left - $body.outerWidth() / 2;
-                var marginRight = 0;
-                var isFixed = $th.hasClass('fixed');
-                if ($th.hasClass('sortable')) marginRight = 24;
-                if ($th.hasClass('filterable')) marginRight = marginRight + 12;
+            // position
+            var $this = $(this);
+            var position = $this.position();
+            var field = $this.attr('data-field');
+            var $body = $ele.find('.table-filter-item[data-field="' + field + '"]');
+            var $th = $this.closest('th');
+            var $thead = $th.closest('thead');
+            var rowHeight = $thead.outerHeight() - $th.outerHeight();
+            var left = $th.outerWidth() + $th.position().left - $body.outerWidth() / 2;
+            var marginRight = 0;
+            var isFixed = $th.hasClass('fixed');
+            if ($th.hasClass('sortable')) marginRight = 24;
+            if ($th.hasClass('filterable')) marginRight = marginRight + 12;
 
-                // 判断是否越界
-                var scrollLeft = 0;
-                if (!isFixed) {
-                    scrollLeft = $th.closest('table').parent().scrollLeft();
-                }
-                var margin = $th.offset().left + $th.outerWidth() - marginRight + $body.outerWidth() / 2 - $(window).width();
-                marginRight = marginRight + scrollLeft;
-                if (margin > 0) {
-                    left = left - margin - 16;
+            // 判断是否越界
+            var scrollLeft = 0;
+            if (!isFixed) {
+                scrollLeft = $th.closest('table').parent().scrollLeft();
+            }
+            var margin = $th.offset().left + $th.outerWidth() - marginRight + $body.outerWidth() / 2 - $(window).width();
+            marginRight = marginRight + scrollLeft;
+            if (margin > 0) {
+                left = left - margin - 16;
 
-                    // set arrow
-                    $arrow = $body.find('.card-arrow');
-                    $arrow.css({ 'left': 'calc(50% - 0.5rem + ' + (margin + 16) + 'px)' });
-                }
-                $body.css({ "top": position.top + marginTop + rowHeight + 50, "left": left - marginRight });
-            };
+                // set arrow
+                $arrow = $body.find('.card-arrow');
+                $arrow.css({ 'left': 'calc(50% - 0.5rem + ' + (margin + 16) + 'px)' });
+            }
 
+            var searchHeight = $ele.find('.table-search').outerHeight();
+            if (searchHeight === undefined) {
+                searchHeight = 0;
+            }
+            else {
+                searchHeight += 8;
+            }
+            $body.css({ "top": position.top + marginTop + rowHeight + searchHeight + 50, "left": left - marginRight });
+        },
+        bb_table_filter: function ($ele) {
             // 点击 filter 小按钮时计算弹出位置
             $ele.on('click', '.filterable .fa-filter', function () {
-                calcPosition.call(this);
+                $.bb_table_filter_calc.call(this, $ele);
             });
         },
-        bb_table: function (el, method, args) {
+        bb_table_getCaretPosition: function (ele) {
+            var result = -1;
+            var startPosition = ele.selectionStart;
+            var endPosition = ele.selectionEnd;
+            if (startPosition == endPosition) {
+                if (startPosition == ele.value.length)
+                    result = 1;
+                else if (startPosition == 0) {
+                    result = 0;
+                }
+            }
+            return result;
+        },
+        bb_table_excel_keybord: function ($ele) {
+            var isExcel = $ele.find('.table-excel').length > 0;
+            if (isExcel) {
+                var KeyCodes = {
+                    TAB: 9,
+                    ENTER: 13,
+                    SHIFT: 16,
+                    CTRL: 17,
+                    ALT: 18,
+                    ESCAPE: 27,
+                    SPACE: 32,
+                    PAGE_UP: 33,
+                    PAGE_DOWN: 34,
+                    END: 35,
+                    HOME: 36,
+                    LEFT_ARROW: 37,
+                    UP_ARROW: 38,
+                    RIGHT_ARROW: 39,
+                    DOWN_ARROW: 40
+                };
+
+                var setFocus = function ($target) {
+                    var handler = window.setTimeout(function () {
+                        window.clearTimeout(handler);
+                        $target.focus();
+                        $target.select();
+                    }, 10);
+                }
+
+                var activeCell = function ($cells, index) {
+                    var ret = false;
+                    var td = $cells[index];
+                    var $target = $(td).find('input.form-control:not([readonly]');
+                    if ($target.length > 0) {
+                        setFocus($target);
+                        ret = true;
+                    }
+                    return ret;
+                };
+                var moveCell = function ($input, keyCode) {
+                    var $td = $input.closest('td');
+                    var $tr = $td.closest('tr');
+                    var $cells = $tr.children('td');
+                    var index = $cells.index($td);
+                    if (keyCode == KeyCodes.LEFT_ARROW) {
+                        while (index-- > 0) {
+                            if (activeCell($cells, index)) {
+                                break;
+                            }
+                        }
+                    }
+                    else if (keyCode == KeyCodes.RIGHT_ARROW) {
+                        while (index++ < $cells.length) {
+                            if (activeCell($cells, index)) {
+                                break;
+                            }
+                        }
+                    }
+                    else if (keyCode == KeyCodes.UP_ARROW) {
+                        $cells = $tr.prev().children('td');
+                        while (index < $cells.length) {
+                            if (activeCell($cells, index)) {
+                                break;
+                            }
+                        }
+                    }
+                    else if (keyCode == KeyCodes.DOWN_ARROW) {
+                        $cells = $tr.next().children('td');
+                        while (index < $cells.length) {
+                            if (activeCell($cells, index)) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                $ele.on('keydown', function (e) {
+                    var $input = $(e.target);
+                    switch (e.keyCode) {
+                        case KeyCodes.UP_ARROW:
+                        case KeyCodes.LEFT_ARROW:
+                            if ($.bb_table_getCaretPosition(e.target) == 0) {
+                                moveCell($input, e.keyCode);
+                            }
+                            break;
+                        case KeyCodes.DOWN_ARROW:
+                        case KeyCodes.RIGHT_ARROW:
+                            if ($.bb_table_getCaretPosition(e.target) == 1) {
+                                moveCell($input, e.keyCode);
+                            }
+                            break;
+                    };
+                });
+            }
+        },
+        bb_table: function (el, obj, method, args) {
             var $ele = $(el);
 
             var tooltip = function () {
@@ -144,7 +273,7 @@
                                 margin = (parseFloat(margin) - 2) + 'px';
                             }
                             else if ($.browser.versions.mobile) {
-                                margin = (parseFloat(margin) - 17) + 'px';
+                                margin = (parseFloat(margin) - 6) + 'px';
                             }
                             $prev.css({ 'right': margin }).addClass('modified');
                             $prev = $prev.prev();
@@ -159,12 +288,30 @@
                     }
                 }
 
+                // 尝试自适应高度
+                var paginationHeight = $ele.find('.table-pagination:first').outerHeight();
+                if (!paginationHeight) {
+                    paginationHeight = 0;
+                }
+                var toolbarHeight = $ele.find('.table-toolbar:first').outerHeight();
+                var bodyHeight = paginationHeight + toolbarHeight;
+                if (bodyHeight > 0) {
+                    $body.parent().css({ height: "calc(100% - " + bodyHeight + "px)" });
+                }
+
+                var headerHeight = $thead.outerHeight();
+                if (headerHeight > 0) {
+                    $body.css({ height: "calc(100% - " + headerHeight + "px)" })
+                }
+
                 // 固定表头的最后一列禁止列宽调整
                 $ele.find('.col-resizer:last').remove();
 
                 $.bb_table_filter($ele);
 
                 $.bb_table_resize($ele);
+
+                $.bb_table_excel_keybord($ele);
             }
             else if (method === 'init') {
                 // sort
@@ -205,12 +352,16 @@
                 $ele.children('.table-scroll').scroll(function () {
                     $ele.find('.table-filter-item.show').each(function () {
                         var fieldName = $(this).attr('data-field');
-                        var filter = $ele.find('.fa-filter[data-field="' + fieldName + '"]')[0];
-                        calcPosition.call(filter);
+                        var icon = $ele.find('.fa-filter[data-field="' + fieldName + '"]')[0];
+                        $.bb_table_filter_calc.call(icon, $ele);
                     });
                 });
 
                 $.bb_table_resize($ele);
+
+                $.bb_table_row_hover($ele);
+
+                $.bb_table_excel_keybord($ele);
             }
             else if (method === 'width') {
                 var width = 0;

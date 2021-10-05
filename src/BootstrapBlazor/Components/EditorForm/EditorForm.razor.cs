@@ -24,7 +24,7 @@ namespace BootstrapBlazor.Components
         /// <param name="item"></param>
         /// <returns></returns>
         private string? GetCssString(IEditorItem item) => CssBuilder.Default("col-12")
-            .AddClass($"col-sm-6 col-md-{Math.Floor(12d / (ItemsPerRow ?? 1))}", item.Data == null && ItemsPerRow != null && item.Rows == 0)
+            .AddClass($"col-sm-6 col-md-{Math.Floor(12d / (ItemsPerRow ?? 1))}", item.Items == null && ItemsPerRow != null && item.Rows == 0)
             .Build();
 
         private string? FormClassString => CssBuilder.Default("row g-3")
@@ -37,6 +37,12 @@ namespace BootstrapBlazor.Components
         /// </summary>
         [Parameter]
         public int? ItemsPerRow { get; set; }
+
+        /// <summary>
+        /// 获得/设置 实体类编辑模式 Add 还是 Update
+        /// </summary>
+        [Parameter]
+        public ItemChangedType ItemChangedType { get; set; }
 
         /// <summary>
         /// 获得/设置 设置行格式 默认 Row 布局
@@ -80,6 +86,13 @@ namespace BootstrapBlazor.Components
         /// </summary>
         [Parameter]
         public bool IsDisplay { get; set; }
+
+        /// <summary>
+        /// 获得/设置 是否使用 SearchTemplate 默认 false 使用 EditTemplate 模板
+        /// </summary>
+        /// <remarks>多用于表格组件传递 <see cref="ITableColumn"/> 集合给参数 <see cref="Items"/> 时</remarks>
+        [Parameter]
+        public bool IsSearch { get; set; }
 
         /// <summary>
         /// 获得/设置 是否自动生成模型的所有属性 默认为 true 生成所有属性
@@ -145,6 +158,7 @@ namespace BootstrapBlazor.Components
                 throw new ArgumentNullException(nameof(Model));
             }
 
+            // 统一设置所有 IEditorItem 的 PlaceHolder
             PlaceHolderText ??= Localizer[nameof(PlaceHolderText)];
         }
 
@@ -207,7 +221,7 @@ namespace BootstrapBlazor.Components
                                     item.Readonly = el.Readonly;
                                     item.EditTemplate = el.EditTemplate;
                                     item.Text = el.Text;
-                                    item.Data = el.Data;
+                                    item.Items = el.Items;
                                     item.Lookup = el.Lookup;
                                     item.ComponentType = el.ComponentType;
                                     item.ComponentParameters = el.ComponentParameters;
@@ -228,14 +242,19 @@ namespace BootstrapBlazor.Components
 
         private RenderFragment AutoGenerateTemplate(IEditorItem item) => builder =>
         {
-            if (IsDisplay || item.Readonly)
+            if (IsDisplay || !item.IsEditable(ItemChangedType))
             {
                 builder.CreateDisplayByFieldType(this, item, Model, ShowLabel);
             }
             else
             {
-                builder.CreateComponentByFieldType(this, item, Model, ShowLabel, PlaceHolderText);
+                item.PlaceHolder ??= PlaceHolderText;
+                builder.CreateComponentByFieldType(this, item, Model, ShowLabel, ItemChangedType);
             }
         };
+
+        private RenderFragment<object>? GetRenderTemplate(IEditorItem item) => IsSearch && item is ITableColumn col
+            ? col.SearchTemplate
+            : item.EditTemplate;
     }
 }

@@ -271,17 +271,21 @@
         padding: 1px 6px;
     }
 
-.table-fixed .table {
-    table-layout: fixed;
+.table-fixed {
+    height: 100%;
 }
+
+    .table-fixed .table {
+        table-layout: fixed;
+    }
 
 .table-fixed-header {
     overflow: hidden;
 }
 
 .table-fixed-body {
-    overflow-x: auto;
-    overflow-y: scroll;
+    overflow-x: auto !important;
+    overflow-y: scroll !important;
 }
 
 .table-scroll {
@@ -347,7 +351,8 @@
 }
 
 .table-hover > tbody > tr.is-detail:hover,
-.table-hover > tbody > tr.is-edit.active {
+.table-hover > tbody > tr.is-edit.active,
+.table-excel > tbody > tr:hover {
     --bs-table-accent-bg: none;
 }
 
@@ -517,8 +522,7 @@
 }
 
     .table-cell.is-incell .switch {
-        height: 35px;
-        padding-left: 9px;
+        padding-left: 6px;
     }
 
     .table-cell.is-incell .select {
@@ -570,4 +574,90 @@ form .table .table-cell > textarea {
 
 .table-search {
     margin-bottom: .5rem;
+}
+
+    .table-search .card-header {
+        padding: 0;
+    }
+
+        .table-search .card-header .table-search-title {
+            padding: .5rem 1rem;
+            flex: 1;
+        }
+
+        .table-search .card-header .table-search-buttons {
+            padding: .25rem 1rem;
+        }
+
+            .table-search .card-header .table-search-buttons .btn {
+                padding: .275rem .5rem;
+            }
+
+.table-excel-toolbar {
+    display: none;
+    position: absolute;
+}
+
+.table-excel.table > :not(caption):not(thead) > * > * {
+    padding: 0;
+}
+
+.table-excel tbody .table-cell > .form-check {
+    padding: 6px 8px;
+}
+
+.table-excel tbody .table-cell .switch {
+    padding: .375rem .1875rem;
+    justify-content: center;
+}
+
+.table-excel .form-control,
+.table-excel .table-cell .select .form-select {
+    border: none;
+    border-radius: 0;
+    padding: .375rem .1875rem;
+}
+
+.table-excel .table-cell .select {
+    width: 100%;
+}
+
+.table-excel .table-cell > .disabled {
+    background-color: var(--bs-bg-disabled);
+    width: 100%;
+    padding: .375rem .1875rem;
+}
+
+.table-excel .datetime-picker-input {
+    padding-left: 2rem;
+}
+
+.table-excel .datetime-picker-input-icon {
+    line-height: 32px;
+}
+
+.table-excel.table tbody tr.active {
+    background-color: transparent;
+}
+
+.table-cell.text-center,
+.table-cell.text-center .switch {
+    justify-content: center;
+}
+
+    .table-cell.text-center input {
+        text-align: center;
+    }
+
+.table-cell.text-end,
+.table-cell.text-end .switch {
+    justify-content: end;
+}
+
+    .table-cell.text-end input {
+        text-align: right;
+    }
+
+.table-cell > .progress {
+    flex: 1;
 }

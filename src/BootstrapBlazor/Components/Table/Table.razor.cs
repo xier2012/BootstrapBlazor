@@ -4,6 +4,7 @@
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -20,13 +21,20 @@ namespace BootstrapBlazor.Components
     /// </summary>
     public partial class Table<TItem> : BootstrapComponentBase, IDisposable, ITable where TItem : class, new()
     {
+        [NotNull]
         private JSInterop<Table<TItem>>? Interop { get; set; }
 
         /// <summary>
         /// 获得 Table 组件样式表
         /// </summary>
         private string? ClassName => CssBuilder.Default("table-container")
+            .AddClass("table-fixed", IsFixedHeader && !Height.HasValue)
             .AddClassFromAttributes(AdditionalAttributes)
+            .Build();
+
+        private string? StyleString => CssBuilder.Default()
+            .AddClass($"height: {Height}px;", IsFixedHeader && Height.HasValue)
+            .AddStyleFromAttributes(AdditionalAttributes)
             .Build();
 
         /// <summary>
@@ -34,6 +42,7 @@ namespace BootstrapBlazor.Components
         /// </summary>
         private string? TableClassName => CssBuilder.Default("table")
             .AddClass("table-sm", TableSize == TableSize.Compact)
+            .AddClass("table-excel", IsExcel)
             .AddClass("table-bordered", IsBordered)
             .AddClass("table-striped table-hover", IsStriped)
             .Build();
@@ -44,8 +53,8 @@ namespace BootstrapBlazor.Components
         protected string? WrapperClassName => CssBuilder.Default()
             .AddClass("table-wrapper", IsBordered)
             .AddClass("is-clickable", ClickToSelect || DoubleClickToEdit || OnClickRowCallback != null || OnDoubleClickRowCallback != null)
-            .AddClass("table-scroll", !Height.HasValue)
-            .AddClass("table-fixed", Height.HasValue)
+            .AddClass("table-scroll", !IsFixedHeader)
+            .AddClass("table-fixed", IsFixedHeader)
             .AddClass("table-fixed-column", Columns.Any(c => c.Fixed))
             .AddClass("table-resize", AllowResizing)
             .Build();
@@ -148,6 +157,12 @@ namespace BootstrapBlazor.Components
         public bool IsTracking { get; set; }
 
         /// <summary>
+        /// 获得/设置 组件工作模式为 Excel 模式 默认 false
+        /// </summary>
+        [Parameter]
+        public bool IsExcel { get; set; }
+
+        /// <summary>
         /// 获得/设置 缩进大小 默认为 16 单位 px
         /// </summary>
         [Parameter]
@@ -176,6 +191,34 @@ namespace BootstrapBlazor.Components
         /// </summary>
         [Parameter]
         public Alignment EditDialogLabelAlign { get; set; }
+
+        /// <summary>
+        /// 获得/设置 明细行 Row Header 宽度 默认 24
+        /// </summary>
+        [Parameter]
+        public int DetailColumnWidth { get; set; }
+
+        /// <summary>
+        /// 获得/设置 显示文字的复选框列宽度 默认 80
+        /// </summary>
+        [Parameter]
+        public int ShowCheckboxTextColumnWidth { get; set; }
+
+        /// <summary>
+        /// 获得/设置 复选框宽度 默认 36
+        /// </summary>
+        [Parameter]
+        public int CheckboxColumnWidth { get; set; }
+
+        /// <summary>
+        /// 获得/设置 行号列宽度 默认 60
+        /// </summary>
+        [Parameter]
+        public int LineNoColumnWidth { get; set; }
+
+        [Inject]
+        [NotNull]
+        private IOptions<BootstrapBlazorOptions>? Options { get; set; }
 
         [NotNull]
         private string? NotSetOnTreeExpandErrorMessage { get; set; }
@@ -454,6 +497,7 @@ namespace BootstrapBlazor.Components
         /// <summary>
         /// 获得/设置 是否斑马线样式 默认为 false
         /// </summary>
+        /// <remarks>此参数在 <see cref="IsExcel"/> 模式下不生效</remarks>
         [Parameter]
         public bool IsStriped { get; set; }
 
@@ -466,6 +510,7 @@ namespace BootstrapBlazor.Components
         /// <summary>
         /// 获得/设置 是否自动刷新表格 默认为 false
         /// </summary>
+        /// <remarks>此参数在 <see cref="IsExcel"/> 模式下不生效</remarks>
         [Parameter]
         public bool IsAutoRefresh { get; set; }
 
@@ -496,26 +541,28 @@ namespace BootstrapBlazor.Components
         /// <summary>
         /// 获得/设置 是否显示每行的明细行展开图标
         /// </summary>
+        /// <remarks>此参数在 <see cref="IsExcel"/> 模式下不生效</remarks>
         [Parameter]
         public Func<TItem, bool>? ShowDetailRow { get; set; }
 
         /// <summary>
         /// 获得/设置 是否为树形数据 默认为 false
         /// </summary>
-        /// <remarks>通过 <see cref="ChildrenColumnName"/> 参数设置树状数据关联列，是否有子项请使用 <seealso cref="HasChildrenColumnName"/> 树形进行设置</remarks>
+        /// <remarks>通过 <see cref="ChildrenColumnName"/> 参数设置树状数据关联列，是否有子项请使用 <seealso cref="HasChildrenColumnName"/> 树形进行设置，此参数在 <see cref="IsExcel"/> 模式下不生效</remarks>
         [Parameter]
         public bool IsTree { get; set; }
 
         /// <summary>
         /// 获得/设置 树形数据模式子项字段 默认为 Children
         /// </summary>
-        /// <remarks>通过 <see cref="HasChildrenColumnName"/> 参数判断是否有子项</remarks>
+        /// <remarks>通过 <see cref="HasChildrenColumnName"/> 参数判断是否有子项，此参数在 <see cref="IsExcel"/> 模式下不生效</remarks>
         [Parameter]
         public string ChildrenColumnName { get; set; } = "Children";
 
         /// <summary>
         /// 获得/设置 树形数据模式子项字段是否有子节点属性名称 默认为 HasChildren 无法提供时请设置 <see cref="HasChildrenCallback"/> 回调方法
         /// </summary>
+        /// <remarks>此参数在 <see cref="IsExcel"/> 模式下不生效</remarks>
         [Parameter]
         public string HasChildrenColumnName { get; set; } = "HasChildren";
 
@@ -555,43 +602,9 @@ namespace BootstrapBlazor.Components
 
             OnInitLocalization();
 
-            // 对动态类型 DataTable 支持
-            if (DynamicContext != null)
-            {
-                OnAddAsync ??= async () =>
-                {
-                    var item = await DynamicContext.AddAsync() as TItem;
-                    if (item == null)
-                    {
-                        throw new InvalidCastException();
-                    }
-                    StateHasChanged();
-                    return item;
-                };
+            OnInitParameters();
 
-                OnSaveAsync ??= async (item, changedType) =>
-                {
-                    var ret = false;
-                    if (item is IDynamicObject d)
-                    {
-                        ret = await DynamicContext.SaveAsync(d, changedType);
-                        StateHasChanged();
-                    }
-                    return ret;
-                };
-
-                OnDeleteAsync ??= async items =>
-                {
-                    var ret = false;
-                    var datas = items.OfType<IDynamicObject>();
-                    if (datas.Any())
-                    {
-                        ret = await DynamicContext.DeleteAsync(datas);
-                        StateHasChanged();
-                    }
-                    return ret;
-                };
-            }
+            Interop = new JSInterop<Table<TItem>>(JSRuntime);
 
             // 初始化每页显示数量
             if (IsPagination)
@@ -619,6 +632,29 @@ namespace BootstrapBlazor.Components
             }
         }
 
+        private void OnInitParameters()
+        {
+            if (ShowCheckboxTextColumnWidth == 0)
+            {
+                ShowCheckboxTextColumnWidth = Options.Value.TableSettings.ShowCheckboxTextColumnWidth;
+            }
+
+            if (DetailColumnWidth == 0)
+            {
+                DetailColumnWidth = Options.Value.TableSettings.DetailColumnWidth;
+            }
+
+            if (LineNoColumnWidth == 0)
+            {
+                LineNoColumnWidth = Options.Value.TableSettings.LineNoColumnWidth;
+            }
+
+            if (CheckboxColumnWidth == 0)
+            {
+                CheckboxColumnWidth = Options.Value.TableSettings.CheckboxColumnWidth;
+            }
+        }
+
         private string? methodName;
 
         /// <summary>
@@ -637,19 +673,18 @@ namespace BootstrapBlazor.Components
 
             RowItemsCache = null;
 
+            if (IsExcel)
+            {
+                IsStriped = false;
+                IsMultipleSelect = true;
+                IsTree = false;
+                IsDetails = false;
+            }
+
             if (!FirstRender)
             {
                 // 动态列模式
-                if (DynamicContext != null && typeof(TItem).IsAssignableTo(typeof(IDynamicObject)))
-                {
-                    AutoGenerateColumns = false;
-
-                    var cols = DynamicContext.GetColumns();
-                    Columns.Clear();
-                    Columns.AddRange(cols);
-
-                    QueryItems = DynamicContext.GetItems().Cast<TItem>();
-                }
+                ResetDynamicContext();
 
                 ColumnVisibles = Columns.Select(i => new ColumnVisibleItem { FieldName = i.GetFieldName(), Visible = i.Visible }).ToList();
 
@@ -676,12 +711,11 @@ namespace BootstrapBlazor.Components
                 if (ShowSearch)
                 {
                     // 注册 SeachBox 回调事件
-                    Interop = new JSInterop<Table<TItem>>(JSRuntime);
                     await Interop.InvokeVoidAsync(this, TableElement, "bb_table_search", nameof(OnSearch), nameof(OnClearSearch));
                 }
 
                 FirstRender = false;
-                methodName = Height.HasValue ? "fixTableHeader" : "init";
+                methodName = IsFixedHeader ? "fixTableHeader" : "init";
 
                 ScreenSize = await RetrieveWidth();
 
@@ -727,7 +761,7 @@ namespace BootstrapBlazor.Components
 
                 if (!string.IsNullOrEmpty(methodName))
                 {
-                    await JSRuntime.InvokeVoidAsync(TableElement, "bb_table", methodName, new { unset = UnsetText, sortAsc = SortAscText, sortDesc = SortDescText });
+                    await Interop.InvokeVoidAsync(this, TableElement, "bb_table", methodName, new { unset = UnsetText, sortAsc = SortAscText, sortDesc = SortDescText });
                     methodName = null;
                 }
 
@@ -752,38 +786,35 @@ namespace BootstrapBlazor.Components
         /// 获得 Table 组件客户端宽度
         /// </summary>
         /// <returns></returns>
-        protected ValueTask<decimal> RetrieveWidth() => JSRuntime.InvokeAsync<decimal>(TableElement, "bb_table", "width", UseComponentWidth);
+        protected ValueTask<decimal> RetrieveWidth() => Interop.InvokeAsync<decimal>(this, TableElement, "bb_table", "width", UseComponentWidth);
 
         /// <summary>
         /// 检查当前列是否显示方法
         /// </summary>
         /// <param name="col"></param>
         /// <returns></returns>
-        protected bool CheckShownWithBreakpoint(ITableColumn col)
+        protected bool CheckShownWithBreakpoint(ITableColumn col) => col.ShownWithBreakPoint switch
         {
-            return col.ShownWithBreakPoint switch
-            {
-                BreakPoint.Small => ScreenSize >= 576,
-                BreakPoint.Medium => ScreenSize >= 768,
-                BreakPoint.Large => ScreenSize >= 992,
-                BreakPoint.ExtraLarge => ScreenSize >= 1200,
-                _ => true
-            };
-        }
+            BreakPoint.Small => ScreenSize >= 576,
+            BreakPoint.Medium => ScreenSize >= 768,
+            BreakPoint.Large => ScreenSize >= 992,
+            BreakPoint.ExtraLarge => ScreenSize >= 1200,
+            _ => true
+        };
 
         /// <summary>
         /// OnQueryAsync 查询结果数据集合
         /// </summary>
         private IEnumerable<TItem>? QueryItems { get; set; }
 
-        private Lazy<List<TItem>>? RowItemsCache { get; set; }
+        private List<TItem>? RowItemsCache { get; set; }
 
         private List<TItem> RowItems
         {
             get
             {
-                RowItemsCache ??= new(() => Items?.ToList() ?? QueryItems?.ToList() ?? new List<TItem>());
-                return IsTree ? GetTreeRows() : RowItemsCache.Value;
+                RowItemsCache ??= Items?.ToList() ?? QueryItems?.ToList() ?? new List<TItem>();
+                return IsTree ? GetTreeRows() : RowItemsCache;
             }
         }
 
@@ -807,18 +838,18 @@ namespace BootstrapBlazor.Components
                     ? dynamicObject.GetValue(col.GetFieldName())
                     : Table<TItem>.GetItemValue(col.GetFieldName(), item);
 
-                // 自动化处理 bool 值
-                if (val is bool && col.ComponentType != null)
+                if (val is bool v1)
                 {
-                    builder.OpenComponent(0, col.ComponentType);
-                    builder.AddAttribute(1, "Value", val);
+                    // 自动化处理 bool 值
+                    builder.OpenComponent(0, typeof(Switch));
+                    builder.AddAttribute(1, "Value", v1);
                     builder.AddAttribute(2, "IsDisabled", true);
                     builder.CloseComponent();
                     return;
                 }
-                // 转化 Lookup 数据源
                 if (col.Lookup != null && val != null)
                 {
+                    // 转化 Lookup 数据源
                     var lookupVal = col.Lookup.FirstOrDefault(l => l.Value.Equals(val.ToString(), StringComparison.OrdinalIgnoreCase));
                     if (lookupVal != null)
                     {
@@ -877,11 +908,59 @@ namespace BootstrapBlazor.Components
         private static ConcurrentDictionary<(Type Type, string PropertyName), Func<TItem, object?>> GetPropertyCache { get; } = new();
         #endregion
 
-        private RenderFragment RenderCell(ITableColumn col) => col.EditTemplate == null
-            ? (col.Readonly
-                ? builder => builder.CreateDisplayByFieldType(this, col, EditModel, false)
-                : builder => builder.CreateComponentByFieldType(this, col, EditModel, false))
-            : col.EditTemplate.Invoke(EditModel);
+        private RenderFragment RenderCell(ITableColumn col, TItem item, ItemChangedType changedType) => col.IsEditable(changedType)
+            ? (col.EditTemplate == null
+                ? builder => builder.CreateComponentByFieldType(this, col, item, false, changedType)
+                : col.EditTemplate(item))
+            : (col.Template == null
+                ? builder => builder.CreateDisplayByFieldType(this, col, item, false)
+                : col.Template(item));
+
+        private RenderFragment RenderExcelCell(ITableColumn col, TItem item, ItemChangedType changedType)
+        {
+            col.PlaceHolder ??= "";
+
+            // 可编辑列未设置模板
+            if (col.IsEditable(changedType) && col.EditTemplate == null)
+            {
+                if (DynamicContext != null)
+                {
+                    SetDynamicEditTemplate();
+                }
+                else
+                {
+                    SetEditTemplate();
+                }
+            }
+            return RenderCell(col, item, changedType);
+
+            void SetDynamicEditTemplate()
+            {
+                col.EditTemplate = row => builder =>
+                {
+                    var d = (IDynamicObject)row;
+                    var onValueChanged = Utility.CreateOnValueChanged<IDynamicObject>(col.PropertyType).Compile();
+                    if (DynamicContext.OnValueChanged != null)
+                    {
+                        var parameters = col.ComponentParameters?.ToList() ?? new List<KeyValuePair<string, object>>();
+                        parameters.Add(new(nameof(ValidateBase<string>.OnValueChanged), onValueChanged.Invoke(d, col, (model, column, val) => DynamicContext.OnValueChanged(model, column, val))));
+                        col.ComponentParameters = parameters;
+                    }
+                    builder.CreateComponentByFieldType(this, col, row, false, changedType);
+                };
+            }
+
+            void SetEditTemplate()
+            {
+                if (OnSaveAsync != null)
+                {
+                    var onValueChanged = Utility.CreateOnValueChanged<TItem>(col.PropertyType).Compile();
+                    var parameters = col.ComponentParameters?.ToList() ?? new List<KeyValuePair<string, object>>();
+                    parameters.Add(new(nameof(ValidateBase<string>.OnValueChanged), onValueChanged.Invoke(item, col, (model, column, val) => OnSaveAsync(model, ItemChangedType.Update))));
+                    col.ComponentParameters = parameters;
+                }
+            }
+        }
 
         #region Filter
         /// <summary>

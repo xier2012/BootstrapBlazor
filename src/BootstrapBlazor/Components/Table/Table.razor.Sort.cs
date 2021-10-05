@@ -79,9 +79,10 @@ namespace BootstrapBlazor.Components
         /// 获取指定列头样式字符串
         /// </summary>
         /// <param name="col"></param>
+        /// <param name="isFilterHeader"></param>
         /// <returns></returns>
-        protected string? GetHeaderClassString(ITableColumn col) => CssBuilder.Default()
-            .AddClass("sortable", col.Sortable)
+        protected string? GetHeaderClassString(ITableColumn col, bool isFilterHeader = false) => CssBuilder.Default()
+            .AddClass("sortable", col.Sortable && !isFilterHeader)
             .AddClass("filterable", col.Filterable)
             .AddClass(GetFixedCellClassString(col))
             .Build();
@@ -110,7 +111,7 @@ namespace BootstrapBlazor.Components
         /// </summary>
         /// <returns></returns>
         protected string? GetFixedExtendButtonsColumnStyleString(int margin = 0) => CssBuilder.Default()
-            .AddClass($"right: {(Height.HasValue ? margin : 0)}px;", FixedExtendButtonsColumn)
+            .AddClass($"right: {(IsFixedHeader ? margin : 0)}px;", FixedExtendButtonsColumn)
             .Build();
 
         private bool IsTail(ITableColumn col)
@@ -156,7 +157,7 @@ namespace BootstrapBlazor.Components
                     }
 
                     // 如果是固定表头时增加滚动条位置
-                    if (Height.HasValue && (index + 1) == Columns.Count)
+                    if (IsFixedHeader && (index + 1) == Columns.Count)
                     {
                         width += margin;
                     }
@@ -204,9 +205,9 @@ namespace BootstrapBlazor.Components
         /// <param name="inCell"></param>
         /// <returns></returns>
         protected string? GetCellClassString(ITableColumn col, bool hasChildren, bool inCell) => CssBuilder.Default("table-cell")
-            .AddClass("justify-content-start", col.Align == Alignment.Left)
-            .AddClass("justify-content-end", col.Align == Alignment.Right)
-            .AddClass("justify-content-center", col.Align == Alignment.Center)
+            .AddClass("text-star", col.Align == Alignment.Left)
+            .AddClass("text-end", col.Align == Alignment.Right)
+            .AddClass("text-center", col.Align == Alignment.Center)
             .AddClass("is-wrap", col.AllowTextWrap)
             .AddClass("is-ellips", col.TextEllipsis)
             .AddClass("is-tips", col.ShowTips)

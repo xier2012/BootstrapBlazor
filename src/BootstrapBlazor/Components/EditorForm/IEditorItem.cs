@@ -24,9 +24,20 @@ namespace BootstrapBlazor.Components
         bool Editable { get; set; }
 
         /// <summary>
-        /// 获得/设置 当前列编辑时是否只读 默认为 false
+        /// 获得/设置 当前列编辑时是否只读 默认为 false 自动生成 UI 为不可编辑 div
         /// </summary>
+        /// <remarks>此属性覆盖 <see cref="IsReadonlyWhenAdd"/> 与 <see cref="IsReadonlyWhenEdit"/> 即新建与编辑时均只读</remarks>
         bool Readonly { get; set; }
+
+        /// <summary>
+        /// 获得/设置 新建时此列只读 默认为 false
+        /// </summary>
+        bool IsReadonlyWhenAdd { get; set; }
+
+        /// <summary>
+        /// 获得/设置 编辑时此列只读 默认为 false
+        /// </summary>
+        bool IsReadonlyWhenEdit { get; set; }
 
         /// <summary>
         /// 获得/设置 是否不进行验证 默认为 false
@@ -41,13 +52,12 @@ namespace BootstrapBlazor.Components
         /// <summary>
         /// 获得/设置 placeholder 文本 默认为 null
         /// </summary>
-        [Parameter]
         string? PlaceHolder { get; set; }
 
         /// <summary>
-        /// 获得/设置 额外数据源一般用于下拉框或者 CheckboxList 这种需要额外配置数据源组件使用
+        /// 获得/设置 额外数据源一般用于 Select 或者 CheckboxList 这种需要额外配置数据源组件使用
         /// </summary>
-        IEnumerable<SelectedItem>? Data { get; set; }
+        IEnumerable<SelectedItem>? Items { get; set; }
 
         /// <summary>
         /// 获得/设置 步长 默认为 null

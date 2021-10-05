@@ -12,10 +12,10 @@
         <EditorForm TModel="Foo">
             <FieldItems>
                 <EditorItem @bind-Field="@context.Id" Editable="false" />
-                <EditorItem @bind-Field="@context.Hobby" Data="@Hobbys" />
+                <EditorItem @bind-Field="@context.Hobby" Items="@Hobbys" />
             </FieldItems>
         </EditorForm>
-        <div class="modal-footer table-modal-footer">
+        <div class="modal-footer table-modal-footer mt-3">
             <button type="button" class="btn btn-secondary" @onclick="@(e => OnClose?.Invoke())">
                 <i class="fa fa-times"></i>
                 <span>关闭</span>
