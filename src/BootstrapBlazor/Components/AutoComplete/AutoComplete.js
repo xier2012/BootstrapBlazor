@@ -19,8 +19,9 @@
             }
         },
         bb_debounce: function (ele, interval) {
+            var $ele = $(ele);
             var handler = null;
-            $(ele).on("input", function (event) {
+            $ele.on("input", function (event) {
                 if (handler) {
                     window.clearTimeout(handler);
                     event.stopPropagation();
@@ -33,6 +34,23 @@
                 } else {
                     console.log('stop', $(event.target).val());
                     handler = window.setTimeout(function () { }, interval);
+                }
+            });
+
+            var keyHandler = null;
+            $ele.on('keyup', function (event) {
+                if (keyHandler) {
+                    window.clearTimeout(handler);
+                    event.stopPropagation();
+                    keyHandler = window.setTimeout(function () {
+                        window.clearTimeout(keyHandler);
+                        keyHandler = null;
+                        console.log('keyup', $(event.target).val());
+                        event.target.dispatchEvent(event.originalEvent);
+                    }, interval);
+                } else {
+                    console.log('cancel', $(event.target).val());
+                    keyHandler = window.setTimeout(function () { }, interval);
                 }
             });
         }
