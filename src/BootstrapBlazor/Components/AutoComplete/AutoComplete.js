@@ -17,6 +17,24 @@
             else if (index <= count) {
                 $menu.scrollTop(0);
             }
+        },
+        bb_debounce: function (ele, interval) {
+            var handler = null;
+            $(ele).on("input", function (event) {
+                if (handler) {
+                    window.clearTimeout(handler);
+                    event.stopPropagation();
+                    handler = window.setTimeout(function () {
+                        window.clearTimeout(handler);
+                        handler = null;
+                        console.log('trigger', $(event.target).val());
+                        event.target.dispatchEvent(event.originalEvent);
+                    }, interval);
+                } else {
+                    console.log('stop', $(event.target).val());
+                    handler = window.setTimeout(function () { }, interval);
+                }
+            });
         }
     });
 })(jQuery);

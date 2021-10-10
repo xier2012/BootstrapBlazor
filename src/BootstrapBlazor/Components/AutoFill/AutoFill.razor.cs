@@ -58,6 +58,12 @@ namespace BootstrapBlazor.Components
         public int? DisplayCount { get; set; }
 
         /// <summary>
+        /// 防抖时间间隔单位毫秒 默认为 0 关闭防抖
+        /// </summary>
+        [Parameter]
+        public int DebounceInterval { get; set; } = 0;
+
+        /// <summary>
         /// 获得/设置 是否开启模糊查询，默认为 false
         /// </summary>
         [Parameter]
@@ -127,6 +133,16 @@ namespace BootstrapBlazor.Components
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
+
+            System.Console.WriteLine("OnAfterRenderAsync");
+
+            if (firstRender)
+            {
+                if (DebounceInterval > 0)
+                {
+                    await JSRuntime.InvokeVoidAsync(AutoFillElement, "bb_debounce", DebounceInterval);
+                }
+            }
 
             if (CurrentItemIndex.HasValue)
             {
